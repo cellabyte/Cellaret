@@ -1,0 +1,32 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Icon=/opt/Cellaret/cellaret.png
+Name=Cellaret
+GenericName=Markdown Browser & Editor
+GenericName[ru]=Markdown браузер с редактором
+GenericName[uk]=Markdown браузер з редактором
+Comment=Browse & Edit markdown files
+Comment[ru]=Просмотр и редактирование Markdown файлов
+Comment[uk]=Перегляд і редагування Markdown файлів
+Exec=/opt/Cellaret/cellaret %f
+Terminal=false
+MimeType=text/x-markdown;
+Categories=GTK;Utility;TextEditor;
+StartupNotify=true
+Actions=Window;Document;
+Keywords=Markdown;Editor;Plaintext;Write;
+
+[Desktop Action Window]
+Name=Open a New Window
+Name[ru]=Открыть новое окно
+Name[uk]=Відкрити нове вікно
+Exec=/opt/Cellaret/cellaret
+OnlyShowIn=Unity;
+
+[Desktop Action Document]
+Name=Open a New Document
+Name[ru]=Открыть новый документ
+Name[uk]=Відкрити новий документ
+Exec=/opt/Cellaret/cellaret
+OnlyShowIn=Unity;

@@ -1,0 +1,255 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Cellaret 0.1.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-07-22 20:51+0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: application/main.py:85
+msgid "&New\tCtrl-N"
+msgstr ""
+
+#: application/main.py:85
+msgid "Creates a new document"
+msgstr ""
+
+#: application/main.py:87
+msgid "&Open\tCtrl-O"
+msgstr ""
+
+#: application/main.py:87
+msgid "Open an existing file"
+msgstr ""
+
+#: application/main.py:92
+msgid "Export to"
+msgstr ""
+
+#: application/main.py:94
+msgid "HTML file"
+msgstr ""
+
+#: application/main.py:97
+msgid "Print &Preview\tShift-Ctrl-P"
+msgstr ""
+
+#: application/main.py:99
+msgid "&Print\tCtrl-P"
+msgstr ""
+
+#: application/main.py:102
+msgid "&Quit Cellaret\tCtrl-Q"
+msgstr ""
+
+#: application/main.py:102
+msgid "Close window and exit program."
+msgstr ""
+
+#: application/main.py:104
+msgid "&File"
+msgstr ""
+
+#: application/main.py:107
+msgid "Refresh\tF5"
+msgstr ""
+
+#: application/main.py:111
+msgid "&Editor\tCtrl-E"
+msgstr ""
+
+#: application/main.py:114
+msgid "Preferences..."
+msgstr ""
+
+#: application/main.py:116
+msgid "E&dit"
+msgstr ""
+
+#: application/main.py:119
+msgid "About"
+msgstr ""
+
+#: application/main.py:119
+msgid "Information about this program"
+msgstr ""
+
+#: application/main.py:121
+msgid "&Help"
+msgstr ""
+
+#: application/main.py:127
+msgid "Refresh"
+msgstr ""
+
+#: application/main.py:133
+msgid "&Copy selected\tCtrl-C"
+msgstr ""
+
+#: application/main.py:149 application/main.py:450
+msgid "Choose a file to open"
+msgstr ""
+
+#: application/main.py:166 application/main.py:169 application/main.py:462
+#: application/main.py:465
+msgid "Error opening file\n"
+msgstr ""
+
+#: application/main.py:197 application/main.py:497
+msgid "Save file As..."
+msgstr ""
+
+#: application/main.py:197
+msgid "new.html"
+msgstr ""
+
+#: application/main.py:209 application/main.py:484 application/main.py:516
+msgid "Error saving file\n"
+msgstr ""
+
+#: application/main.py:300
+msgid "New File - Cellaret File Editor"
+msgstr ""
+
+#: application/main.py:332 application/main.py:510
+msgid " - Cellaret File Editor"
+msgstr ""
+
+#: application/main.py:358
+msgid "Append to File"
+msgstr ""
+
+#: application/main.py:362
+msgid "Save"
+msgstr ""
+
+#: application/main.py:367
+msgid "Save as..."
+msgstr ""
+
+#: application/main.py:373
+msgid "Copy"
+msgstr ""
+
+#: application/main.py:377
+msgid "Cut"
+msgstr ""
+
+#: application/main.py:381
+msgid "Paste"
+msgstr ""
+
+#: application/main.py:387
+msgid "Undo"
+msgstr ""
+
+#: application/main.py:392
+msgid "Redo"
+msgstr ""
+
+#: application/main.py:399
+msgid "Bold"
+msgstr ""
+
+#: application/main.py:403
+msgid "Italic"
+msgstr ""
+
+#: application/main.py:410
+msgid "Hyperlink"
+msgstr ""
+
+#: application/main.py:415
+msgid "Named Hyperlink"
+msgstr ""
+
+#: application/main.py:420
+msgid "Insert Image"
+msgstr ""
+
+#: application/main.py:426
+msgid "Close Editor"
+msgstr ""
+
+#: application/main.py:430
+msgid "Quit Cellaret"
+msgstr ""
+
+#: application/main.py:477 application/main.py:507
+msgid " Saved"
+msgstr ""
+
+#: application/main.py:497
+msgid "new.md"
+msgstr ""
+
+#: application/main.py:564
+msgid "Choose image file"
+msgstr ""
+
+#: application/main.py:590 application/main.py:609
+msgid "File is modified. Save before exit?"
+msgstr ""
+
+#: application/browser.py:59
+msgid "copied to the Clipboard"
+msgstr ""
+
+#: application/browser.py:59
+msgid "Link copy to Clipboard"
+msgstr ""
+
+#: application/preferences.py:38
+msgid "Cellaret Preferences"
+msgstr ""
+
+#: application/preferences.py:49
+msgid "Browser"
+msgstr ""
+
+#: application/preferences.py:50
+msgid "Editor"
+msgstr ""
+
+#: application/preferences.py:56
+msgid "Print Filename"
+msgstr ""
+
+#: application/preferences.py:63 application/preferences.py:84
+msgid "Width:"
+msgstr ""
+
+#: application/preferences.py:64 application/preferences.py:85
+msgid "Height:"
+msgstr ""
+
+#: application/preferences.py:65
+msgid "Font size:"
+msgstr ""
+
+#: application/preferences.py:76
+msgid "Check brace"
+msgstr ""
+
+#: application/preferences.py:77
+msgid "Style highlighting"
+msgstr ""
+
+#: application/preferences.py:106
+msgid "Browser Configuration saved. Program restart required."
+msgstr ""
+
+#: application/preferences.py:115
+msgid "Editor Configuration saved. Program restart required."
+msgstr ""
