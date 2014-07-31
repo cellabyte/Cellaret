@@ -1,11 +1,11 @@
-#Cellaret
-###for browse and edit Markdown text
+# Cellaret
+### for browse and edit Markdown text
 
-Cellaret is a software program that browse and edit Markdown text, created and maintained by Roman Verin.
+Cellaret is a software program that browse and edit Markdown text, created and maintained by Roman Verin **@cellabyte**.
 
-Get started at <http://cellabyte.com> _(coming soon)_
+Get started at `http://cellabyte.com` _(coming soon)_.
 
-##License
+## License
 	Copyright 2014 Roman Verin
 
 	Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,16 +20,16 @@ Get started at <http://cellabyte.com> _(coming soon)_
 	See the License for the specific language governing permissions and
 	limitations under the License.
 
-##Changelog
+## Changelog
 - v0.1.1 - initial Git.
 
-##Author
+## Author
 - E-mail: roman(at)cellabyte(dot)com
 
-## Installation Cellaret
+## Installation for Linux
 
-`$ cd Cellaret`
+Download ZIP file.
 
-**Run:**
-
-`$ install.sh`
+	$ unzip Cellaret-master.zip
+	$ cd Cellaret-master
+	$ ./install.sh
