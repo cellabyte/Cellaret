@@ -36,7 +36,7 @@ HELP_INSTALL() {
 Install help
 ------------------------------------------------------------
 
-This install.sh file were tested only in Ubuntu 12.04.
+This install.sh file were tested only in Ubuntu 12.04 and 14.04.
 
 EOF
 }

@@ -29,6 +29,17 @@ from wx.lib.embeddedimage import PyEmbeddedImage
 
 config = wx.Config('config/cellaret.conf')
 
+config.SetPath('Main')
+if config.Exists('Select_directory'):
+	SELECT_DIRECTORY = config.ReadInt('Select_directory')
+	WORKING_DIRECTORY = config.Read('Working_directory')
+else:
+	SELECT_DIRECTORY = False # Select Working directory, default False.
+	config.WriteInt('Select_directory', SELECT_DIRECTORY)
+	WORKING_DIRECTORY = ''
+	config.Write('Working_directory', WORKING_DIRECTORY)
+config.SetPath('')
+
 config.SetPath('Browser')
 if config.Exists('Width'):
 	BROWSER_WIDTH, BROWSER_HEIGHT = config.ReadInt('Width'), config.ReadInt('Height')

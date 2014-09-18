@@ -145,8 +145,13 @@ class MarkdownBrowser(wx.Frame):
 		self.cellaBrowser.PopupMenu(self.popupmenu, pos)
 
 	def OnOpen(self, event):
+		if SELECT_DIRECTORY:
+			dir = WORKING_DIRECTORY
+		else:
+			dir = ''
+
 		wildcardStr = 'Markdown (*.md, *.mkd, *.markdown)|*.md;*.mkd;*.markdown'
-		fileOpenDlg = wx.FileDialog(self, _('Choose a file to open'), wildcard=wildcardStr, style=wx.OPEN)
+		fileOpenDlg = wx.FileDialog(self, _('Choose a file to open'), defaultDir=dir, wildcard=wildcardStr, style=wx.OPEN)
 		if (fileOpenDlg.ShowModal() == wx.ID_OK) :
 			global MD_PATH_FILE
 			MD_PATH_FILE = fileOpenDlg.GetPath()
@@ -490,6 +495,8 @@ class MarkdownEditor(wx.Frame):
 		global MD_PATH_FILE
 		if MD_PATH_FILE:
 			dir = os.path.dirname(MD_PATH_FILE)
+		elif SELECT_DIRECTORY:
+			dir = WORKING_DIRECTORY
 		else:
 			dir = os.getcwd()
 
