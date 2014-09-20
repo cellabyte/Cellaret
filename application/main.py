@@ -104,16 +104,25 @@ class MarkdownBrowser(wx.Frame):
 		menuBar.Append(menu, _('&File'))
 
 		menu = wx.Menu()
-		refreshItem = menu.Append(wx.ID_REFRESH, _('Refresh\tF5'), '')
-		self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
 		#copySelectedItem = menu.Append(wx.ID_COPY, _('&Copy selected\tCtrl-C'), '')
 		#self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedItem)
-		self.editItem = menu.Append(wx.ID_EDIT, _('&Editor\tCtrl-E'), '')
+		self.editItem = menu.Append(wx.ID_EDIT, _('&Editor\tCtrl-E'), _('Markdown text editor'))
 		self.Bind(wx.EVT_MENU, self.OnEdit, self.editItem)
 		menu.AppendSeparator()
 		self.preferencesItem = menu.Append(wx.ID_PREFERENCES, _('Preferences...'), '')
 		self.Bind(wx.EVT_MENU, self.OnPreferences, self.preferencesItem)
 		menuBar.Append(menu, _('E&dit'))
+
+		menu = wx.Menu()
+		refreshItem = menu.Append(wx.ID_REFRESH, _('Refresh\tF5'), '')
+		self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
+		menu.AppendSeparator()
+		self.fullscreenItem = menu.Append(wx.ID_ANY, _('Full Screen\tF11'), _('Toggles Full Screen Mode'), wx.ITEM_CHECK)
+		self.Bind(wx.EVT_MENU, self.OnFullScreen, self.fullscreenItem)
+		self.statusbarItem = menu.Append(wx.ID_ANY, _('Show Status &Bar\tCtrl-B'), '', wx.ITEM_CHECK)
+		menu.Check(self.statusbarItem.GetId(), True)
+		self.Bind(wx.EVT_MENU, self.OnStatusBar, self.statusbarItem)
+		menuBar.Append(menu, _('&View'))
 
 		menu = wx.Menu()
 		aboutItem = menu.Append(wx.ID_ABOUT, _('About'), _('Information about this program'))
@@ -136,7 +145,21 @@ class MarkdownBrowser(wx.Frame):
 		# Context Menu Event
 		self.cellaBrowser.Bind(wx.EVT_CONTEXT_MENU, self.OnShowPopup)
 
-#		self.statusbar = self.CreateStatusBar()
+		# StatusBar for HtmlWindow
+		self.statusbar = self.CreateStatusBar()
+		self.cellaBrowser.SetRelatedFrame(self, '') # Sets the frame in which page title will be displayed.
+		self.cellaBrowser.SetRelatedStatusBar(0) # After calling SetRelatedFrame, this sets statusbar slot where messages will be displayed.
+
+	# Toggle Full Screen
+	def OnFullScreen(self, event):
+		self.ShowFullScreen(not self.IsFullScreen(), wx.FULLSCREEN_NOCAPTION)
+
+	# Show Status Bar
+	def OnStatusBar(self, event):
+		if self.statusbarItem.IsChecked():
+			self.statusbar.Show()
+		else:
+			self.statusbar.Hide()
 
 	# Show Context Menu
 	def OnShowPopup(self, event):
@@ -145,15 +168,17 @@ class MarkdownBrowser(wx.Frame):
 		self.cellaBrowser.PopupMenu(self.popupmenu, pos)
 
 	def OnOpen(self, event):
-		if SELECT_DIRECTORY:
+		global MD_PATH_FILE
+		if MD_PATH_FILE:
+			dir = os.path.dirname(MD_PATH_FILE)
+		elif SELECT_DIRECTORY:
 			dir = WORKING_DIRECTORY
 		else:
 			dir = ''
 
 		wildcardStr = 'Markdown (*.md, *.mkd, *.markdown)|*.md;*.mkd;*.markdown'
 		fileOpenDlg = wx.FileDialog(self, _('Choose a file to open'), defaultDir=dir, wildcard=wildcardStr, style=wx.OPEN)
-		if (fileOpenDlg.ShowModal() == wx.ID_OK) :
-			global MD_PATH_FILE
+		if fileOpenDlg.ShowModal() == wx.ID_OK:
 			MD_PATH_FILE = fileOpenDlg.GetPath()
 			try:
 				file = codecs.open(os.path.join(MD_PATH_FILE), mode="r", encoding="utf-8") # open the file and encoding
@@ -453,7 +478,7 @@ class MarkdownEditor(wx.Frame):
 	def OnOpenFile(self, event):
 		wildcardStr = 'Markdown (*.md)|*.md|All files (*)|*'
 		fileOpenDlg = wx.FileDialog(self, _('Choose a file to open'), wildcard=wildcardStr, style=wx.OPEN)
-		if (fileOpenDlg.ShowModal() == wx.ID_OK) :
+		if fileOpenDlg.ShowModal() == wx.ID_OK:
 			PathFile = fileOpenDlg.GetPath()
 			try:
 				file = codecs.open(PathFile, 'r', encoding="utf-8") # utf-8
@@ -562,8 +587,12 @@ class MarkdownEditor(wx.Frame):
 		self.markdownTextIsModified = True
 
 	def OnNamedHyperlink(self, event):
-		self._insertTags('[', '](URL "")')
-		self.markdownTextIsModified = True
+		dlg = wx.TextEntryDialog(self, _('Enter Hyperlink'), _('URL Entry'))
+#		dlg.SetValue('URL')
+		if dlg.ShowModal() == wx.ID_OK:
+			self._insertTags('[', '](%s "")' % dlg.GetValue())
+			self.markdownTextIsModified = True
+		dlg.Destroy()
 
 	def OnInsertImage(self, event):
 		dir = os.path.dirname(MD_PATH_FILE)
@@ -571,10 +600,11 @@ class MarkdownEditor(wx.Frame):
 		dlg = wx.FileDialog(self, message = _('Choose image file'), defaultDir = dir, defaultFile = "", wildcard = wildcardStr, style=wx.OPEN | wx.FILE_MUST_EXIST)
 		dlgResult = dlg.ShowModal()
 		imagePathFile = dlg.GetPath()
+		imageFile = os.path.basename(imagePathFile)
 		dlg.Destroy()
 		if  dlgResult != wx.ID_OK: return
 
-		self.cellaEditor.AddText('![altText](%s)' % imagePathFile)
+		self.cellaEditor.AddText('!['+ imageFile +'](%s)' % imagePathFile)
 		self.markdownTextIsModified = True
 
 	def _insertTags(self, starttag, stoptag):
@@ -596,7 +626,7 @@ class MarkdownEditor(wx.Frame):
 		if self.markdownTextIsModified:
 			dlg = wx.MessageDialog(self, _('File is modified. Save before exit?'), '', wx.YES_NO | wx.YES_DEFAULT | wx.CANCEL | wx.ICON_QUESTION)
 			val = dlg.ShowModal()
-			if (val == wx.ID_YES):
+			if val == wx.ID_YES:
 				self.OnSaveFile(event)
 				if not self.markdownTextIsModified:
 					self.Destroy() # Destroy MarkdownEditor(wx.Frame)
@@ -615,7 +645,7 @@ class MarkdownEditor(wx.Frame):
 		if self.markdownTextIsModified:
 			dlg = wx.MessageDialog(self, _('File is modified. Save before exit?'), '', wx.YES_NO | wx.YES_DEFAULT | wx.CANCEL | wx.ICON_QUESTION)
 			val = dlg.ShowModal()
-			if (val == wx.ID_YES):
+			if val == wx.ID_YES:
 				self.OnSaveFile(event)
 				if not self.markdownTextIsModified:
 					wx.Exit() # Exit wx.App.MainLoop()

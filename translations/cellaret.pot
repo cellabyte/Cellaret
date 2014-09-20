@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cellaret 0.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-22 20:51+0400\n"
+"POT-Creation-Date: 2014-09-19 23:31+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,144 +61,172 @@ msgstr ""
 msgid "&File"
 msgstr ""
 
-#: application/main.py:107
-msgid "Refresh\tF5"
-msgstr ""
-
-#: application/main.py:111
+#: application/main.py:109
 msgid "&Editor\tCtrl-E"
 msgstr ""
 
-#: application/main.py:114
+#: application/main.py:109
+msgid "Markdown text editor"
+msgstr ""
+
+#: application/main.py:112
 msgid "Preferences..."
 msgstr ""
 
-#: application/main.py:116
+#: application/main.py:114
 msgid "E&dit"
 msgstr ""
 
-#: application/main.py:119
+#: application/main.py:117
+msgid "Refresh\tF5"
+msgstr ""
+
+#: application/main.py:120
+msgid "Full Screen\tF11"
+msgstr ""
+
+#: application/main.py:120
+msgid "Toggles Full Screen Mode"
+msgstr ""
+
+#: application/main.py:122
+msgid "Show Status &Bar\tCtrl-B"
+msgstr ""
+
+#: application/main.py:125
+msgid "&View"
+msgstr ""
+
+#: application/main.py:128
 msgid "About"
 msgstr ""
 
-#: application/main.py:119
+#: application/main.py:128
 msgid "Information about this program"
 msgstr ""
 
-#: application/main.py:121
+#: application/main.py:130
 msgid "&Help"
 msgstr ""
 
-#: application/main.py:127
+#: application/main.py:136
 msgid "Refresh"
 msgstr ""
 
-#: application/main.py:133
+#: application/main.py:142
 msgid "&Copy selected\tCtrl-C"
 msgstr ""
 
-#: application/main.py:149 application/main.py:450
+#: application/main.py:180 application/main.py:480
 msgid "Choose a file to open"
 msgstr ""
 
-#: application/main.py:166 application/main.py:169 application/main.py:462
-#: application/main.py:465
+#: application/main.py:196 application/main.py:199 application/main.py:492
+#: application/main.py:495
 msgid "Error opening file\n"
 msgstr ""
 
-#: application/main.py:197 application/main.py:497
+#: application/main.py:227 application/main.py:529
 msgid "Save file As..."
 msgstr ""
 
-#: application/main.py:197
+#: application/main.py:227
 msgid "new.html"
 msgstr ""
 
-#: application/main.py:209 application/main.py:484 application/main.py:516
+#: application/main.py:239 application/main.py:514 application/main.py:548
 msgid "Error saving file\n"
 msgstr ""
 
-#: application/main.py:300
+#: application/main.py:330
 msgid "New File - Cellaret File Editor"
 msgstr ""
 
-#: application/main.py:332 application/main.py:510
+#: application/main.py:362 application/main.py:542
 msgid " - Cellaret File Editor"
 msgstr ""
 
-#: application/main.py:358
+#: application/main.py:388
 msgid "Append to File"
 msgstr ""
 
-#: application/main.py:362
+#: application/main.py:392
 msgid "Save"
 msgstr ""
 
-#: application/main.py:367
+#: application/main.py:397
 msgid "Save as..."
 msgstr ""
 
-#: application/main.py:373
+#: application/main.py:403
 msgid "Copy"
 msgstr ""
 
-#: application/main.py:377
+#: application/main.py:407
 msgid "Cut"
 msgstr ""
 
-#: application/main.py:381
+#: application/main.py:411
 msgid "Paste"
 msgstr ""
 
-#: application/main.py:387
+#: application/main.py:417
 msgid "Undo"
 msgstr ""
 
-#: application/main.py:392
+#: application/main.py:422
 msgid "Redo"
 msgstr ""
 
-#: application/main.py:399
+#: application/main.py:429
 msgid "Bold"
 msgstr ""
 
-#: application/main.py:403
+#: application/main.py:433
 msgid "Italic"
 msgstr ""
 
-#: application/main.py:410
+#: application/main.py:440
 msgid "Hyperlink"
 msgstr ""
 
-#: application/main.py:415
+#: application/main.py:445
 msgid "Named Hyperlink"
 msgstr ""
 
-#: application/main.py:420
+#: application/main.py:450
 msgid "Insert Image"
 msgstr ""
 
-#: application/main.py:426
+#: application/main.py:456
 msgid "Close Editor"
 msgstr ""
 
-#: application/main.py:430
+#: application/main.py:460
 msgid "Quit Cellaret"
 msgstr ""
 
-#: application/main.py:477 application/main.py:507
+#: application/main.py:507 application/main.py:539
 msgid " Saved"
 msgstr ""
 
-#: application/main.py:497
+#: application/main.py:529
 msgid "new.md"
 msgstr ""
 
-#: application/main.py:564
+#: application/main.py:590
+msgid "Enter Hyperlink"
+msgstr ""
+
+#: application/main.py:590
+msgid "URL Entry"
+msgstr ""
+
+#: application/main.py:600
 msgid "Choose image file"
 msgstr ""
 
-#: application/main.py:590 application/main.py:609
+#: application/main.py:627 application/main.py:646
 msgid "File is modified. Save before exit?"
 msgstr ""
 
@@ -214,42 +242,58 @@ msgstr ""
 msgid "Cellaret Preferences"
 msgstr ""
 
-#: application/preferences.py:49
+#: application/preferences.py:50
+msgid "Main"
+msgstr ""
+
+#: application/preferences.py:51
 msgid "Browser"
 msgstr ""
 
-#: application/preferences.py:50
+#: application/preferences.py:52
 msgid "Editor"
 msgstr ""
 
-#: application/preferences.py:56
+#: application/preferences.py:58
+msgid "Select Working directory"
+msgstr ""
+
+#: application/preferences.py:74
 msgid "Print Filename"
 msgstr ""
 
-#: application/preferences.py:63 application/preferences.py:84
+#: application/preferences.py:75
+msgid "Navigate through the links"
+msgstr ""
+
+#: application/preferences.py:83 application/preferences.py:104
 msgid "Width:"
 msgstr ""
 
-#: application/preferences.py:64 application/preferences.py:85
+#: application/preferences.py:84 application/preferences.py:105
 msgid "Height:"
 msgstr ""
 
-#: application/preferences.py:65
+#: application/preferences.py:85
 msgid "Font size:"
 msgstr ""
 
-#: application/preferences.py:76
+#: application/preferences.py:96
 msgid "Check brace"
 msgstr ""
 
-#: application/preferences.py:77
+#: application/preferences.py:97
 msgid "Style highlighting"
 msgstr ""
 
-#: application/preferences.py:106
+#: application/preferences.py:127
+msgid "Main Configuration saved. Program restart required."
+msgstr ""
+
+#: application/preferences.py:137
 msgid "Browser Configuration saved. Program restart required."
 msgstr ""
 
-#: application/preferences.py:115
+#: application/preferences.py:146
 msgid "Editor Configuration saved. Program restart required."
 msgstr ""
