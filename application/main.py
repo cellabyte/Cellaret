@@ -88,10 +88,8 @@ class MarkdownBrowser(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.OnOpen, self.openItem)
 		menu.AppendSeparator()
 		export = wx.Menu()
-		exportID = wx.NewId()
-		menu.AppendMenu(exportID, _('Export to'), export)
-		htmlID = wx.NewId()
-		htmlItem = export.Append(htmlID, _('HTML file'), '')
+		menu.AppendMenu(wx.ID_ANY, _('Export to'), export)
+		htmlItem = export.Append(wx.ID_ANY, _('HTML file'), '')
 		self.Bind(wx.EVT_MENU, self.OnSaveAsHtml, htmlItem)
 		menu.AppendSeparator()
 		previewItem = menu.Append(wx.ID_PREVIEW, _('Print &Preview\tShift-Ctrl-P'), '')
@@ -216,15 +214,18 @@ class MarkdownBrowser(wx.Frame):
 	def OnSaveAsHtml(self, event):
 		if MD_PATH_FILE:
 			dir = os.path.dirname(MD_PATH_FILE)
+			mdFile = os.path.basename(MD_PATH_FILE)
+			shortName, extName = os.path.splitext(mdFile)
+			htmlFile = shortName + '.html'
+		elif SELECT_DIRECTORY:
+			dir = WORKING_DIRECTORY
+			htmlFile = _('new.html')
 		else:
 			dir = os.getcwd()
-
-		#print os.getcwd()
-		#print os.path.abspath(os.path.dirname(MD_PATH_FILE))
-		#print os.path.dirname(MD_PATH_FILE)
+			htmlFile = _('new.html')
 
 		wildcardStr = 'HTML (*.html)|*.html'
-		save_dlg = wx.FileDialog(self, message=_('Save file As...'), defaultDir=dir, defaultFile=_('new.html'), wildcard=wildcardStr, style=wx.SAVE | wx.OVERWRITE_PROMPT)
+		save_dlg = wx.FileDialog(self, message=_('Save file As...'), defaultDir=dir, defaultFile=htmlFile, wildcard=wildcardStr, style=wx.SAVE | wx.OVERWRITE_PROMPT)
 		if save_dlg.ShowModal() == wx.ID_OK:
 			startHtml = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">\n<html>\n<head>\n\t<meta http-equiv="content-type" content="text/html; charset=utf-8">\n\t<meta name="generator" content="Cellaret (linux)">\n</head>\n<body>\n'
 			endHtml = '\n</body>\n</html>\n'
@@ -363,6 +364,9 @@ class MarkdownEditor(wx.Frame):
 			filePath.close() # close the file
 			self.cellaEditor.EmptyUndoBuffer() # clear the Undo buffer
 			self.edLastFilenameSaved = MD_PATH_FILE # path to the file (for saving)
+			self.imagePathFile = MD_PATH_FILE # path to the image file (for the beginning)
+		else:
+			self.imagePathFile = None
 
 		self.markdownTextIsModified = False # Set False, because the text was changed.
 		self.statusbar = self.CreateStatusBar()
@@ -386,7 +390,7 @@ class MarkdownEditor(wx.Frame):
 
 		# Append to file
 		self.toolbar.AddSimpleTool(wx.ID_OPEN, wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN), _('Append to File'), '')
-		self.Bind(wx.EVT_TOOL, self.OnOpenFile, id=wx.ID_OPEN)
+		self.Bind(wx.EVT_TOOL, self.OnAppendToFile, id=wx.ID_OPEN)
 
 		# SAVE TO FILE editor's current text
 		self.toolbar.AddSimpleTool(wx.ID_SAVE, wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE), _('Save'), '')
@@ -475,7 +479,7 @@ class MarkdownEditor(wx.Frame):
 		#print keycode
 		#event.Skip()
 
-	def OnOpenFile(self, event):
+	def OnAppendToFile(self, event):
 		wildcardStr = 'Markdown (*.md)|*.md|All files (*)|*'
 		fileOpenDlg = wx.FileDialog(self, _('Choose a file to open'), wildcard=wildcardStr, style=wx.OPEN)
 		if fileOpenDlg.ShowModal() == wx.ID_OK:
@@ -520,13 +524,16 @@ class MarkdownEditor(wx.Frame):
 		global MD_PATH_FILE
 		if MD_PATH_FILE:
 			dir = os.path.dirname(MD_PATH_FILE)
+			saveAs = os.path.basename(MD_PATH_FILE)
 		elif SELECT_DIRECTORY:
 			dir = WORKING_DIRECTORY
+			saveAs = _('new.md')
 		else:
 			dir = os.getcwd()
+			saveAs = _('new.md')
 
 		wildcardStr = 'Markdown (*.md)|*.md'
-		save_dlg = wx.FileDialog(self, message=_('Save file As...'), defaultDir=dir, defaultFile=_('new.md'), wildcard=wildcardStr, style=wx.SAVE | wx.OVERWRITE_PROMPT)
+		save_dlg = wx.FileDialog(self, message=_('Save file As...'), defaultDir=dir, defaultFile=saveAs, wildcard=wildcardStr, style=wx.SAVE | wx.OVERWRITE_PROMPT)
 		if save_dlg.ShowModal() == wx.ID_OK:
 			MD_PATH_FILE = save_dlg.GetPath()
 			try:
@@ -575,39 +582,45 @@ class MarkdownEditor(wx.Frame):
 			self.toolbar.EnableTool(wx.ID_REDO, False)
 
 	def OnBold(self, event):
-		self._insertTags('**', '**')
+		self.insertTags('**', '**')
 		self.markdownTextIsModified = True
 
 	def OnItalic(self, event):
-		self._insertTags('_', '_')
+		self.insertTags('_', '_')
 		self.markdownTextIsModified = True
 
 	def OnHyperlink(self, event):
-		self._insertTags('<', '>')
+		self.insertTags('<', '>')
 		self.markdownTextIsModified = True
 
 	def OnNamedHyperlink(self, event):
 		dlg = wx.TextEntryDialog(self, _('Enter Hyperlink'), _('URL Entry'))
 #		dlg.SetValue('URL')
 		if dlg.ShowModal() == wx.ID_OK:
-			self._insertTags('[', '](%s "")' % dlg.GetValue())
+			self.insertTags('[', '](%s "")' % dlg.GetValue())
 			self.markdownTextIsModified = True
 		dlg.Destroy()
 
 	def OnInsertImage(self, event):
-		dir = os.path.dirname(MD_PATH_FILE)
+		if self.imagePathFile:
+			dir = os.path.dirname(self.imagePathFile)
+		elif SELECT_DIRECTORY:
+			dir = WORKING_DIRECTORY
+		else:
+			dir = ''
+
 		wildcardStr = 'Images (*.jpg, *.gif, *.png)|*.jpg;*.gif;*.png|All files (*)|*'
-		dlg = wx.FileDialog(self, message = _('Choose image file'), defaultDir = dir, defaultFile = "", wildcard = wildcardStr, style=wx.OPEN | wx.FILE_MUST_EXIST)
-		dlgResult = dlg.ShowModal()
-		imagePathFile = dlg.GetPath()
-		imageFile = os.path.basename(imagePathFile)
-		dlg.Destroy()
-		if  dlgResult != wx.ID_OK: return
+		insertImageDlg = wx.FileDialog(self, message = _('Choose image file'), defaultDir = dir, wildcard = wildcardStr, style=wx.OPEN)
+		if insertImageDlg.ShowModal() == wx.ID_OK:
+			self.imagePathFile = insertImageDlg.GetPath()
 
-		self.cellaEditor.AddText('!['+ imageFile +'](%s)' % imagePathFile)
-		self.markdownTextIsModified = True
+			imageFile = os.path.basename(self.imagePathFile)
+			self.cellaEditor.AddText('!['+ imageFile +'](%s)' % self.imagePathFile)
+			self.markdownTextIsModified = True
 
-	def _insertTags(self, starttag, stoptag):
+		insertImageDlg.Destroy()
+
+	def insertTags(self, starttag, stoptag):
 		(start, to) = self.cellaEditor.GetSelection()
 		to += len(starttag)
 		self.cellaEditor.GotoPos(start)

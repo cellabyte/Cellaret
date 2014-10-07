@@ -93,12 +93,12 @@ class CellaretPreferences(wx.Frame):
 
 		# Editor Panel
 		#=============
-		self.cb1Editor = wx.CheckBox(self.editor, -1, _('Check brace'), (200, 15))
-		self.cb2Editor = wx.CheckBox(self.editor, -1, _('Style highlighting'), (200, 45))
+		self.cb1Editor = wx.CheckBox(self.editor, -1, _('Style highlighting'), (200, 15))
+#		self.cb2Editor = wx.CheckBox(self.editor, -1, _('Check brace'), (200, 45))
 
 		config.SetPath('Editor')
-		self.cb1Editor.SetValue(config.ReadInt('Check_brace'))
-		self.cb2Editor.SetValue(config.ReadInt('Style_highlighting'))
+		self.cb1Editor.SetValue(config.ReadInt('Style_highlighting'))
+#		self.cb2Editor.SetValue(config.ReadInt('Check_brace'))
 		config.SetPath('')
 
 		wx.StaticText(self.editor, -1, _('Width:'), (20, 20))
@@ -140,8 +140,8 @@ class CellaretPreferences(wx.Frame):
 		config.SetPath('Editor')
 		config.WriteInt('Width', self.sc1Editor.GetValue())
 		config.WriteInt('Height', self.sc2Editor.GetValue())
-		config.WriteInt('Check_brace', self.cb1Editor.GetValue())
-		config.WriteInt('Style_highlighting', self.cb2Editor.GetValue())
+		config.WriteInt('Style_highlighting', self.cb1Editor.GetValue())
+#		config.WriteInt('Check_brace', self.cb2Editor.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Editor Configuration saved. Program restart required.'))
 

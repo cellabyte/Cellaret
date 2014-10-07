@@ -71,16 +71,16 @@ else:
 	(EDITOR_WIDTH, EDITOR_HEIGHT) = (800, 600)
 	config.WriteInt('Width', EDITOR_WIDTH)
 	config.WriteInt('Height', EDITOR_HEIGHT)
-if config.Exists('Check_brace'):
-	CHECK_BRACE = config.ReadInt('Check_brace')
-else:
-	CHECK_BRACE = True # Check brace, default True.
-	config.WriteInt('Check_brace', CHECK_BRACE)
 if config.Exists('Style_highlighting'):
 	STYLE_HIGHLIGHTING = config.ReadInt('Style_highlighting')
 else:
-	STYLE_HIGHLIGHTING = False # Style highlighting, default True.
+	STYLE_HIGHLIGHTING = False # Style highlighting, default False.
 	config.WriteInt('Style_highlighting', STYLE_HIGHLIGHTING)
+if config.Exists('Check_brace'):
+	CHECK_BRACE = config.ReadInt('Check_brace')
+else:
+	CHECK_BRACE = False # Check brace, default False.
+	config.WriteInt('Check_brace', CHECK_BRACE)
 config.SetPath('')
 
 # Don't edit these variables

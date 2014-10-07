@@ -123,62 +123,17 @@ class cellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 #		self.SetEOLMode(wx.stc.STC_EOL_CRLF)
 #		self.SetViewEOL(True)
 
-		if CHECK_BRACE:
-			self.Bind(wx.stc.EVT_STC_UPDATEUI, self.OnCheckBrace) # Get the handler, where we will check pairing brackets.
 		if STYLE_HIGHLIGHTING:
 			self.Bind(wx.stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded) # Event triggered when you want to set the highlighting style.
+
+		#if CHECK_BRACE:
+			#self.Bind(wx.stc.EVT_STC_UPDATEUI, self.OnCheckBrace) # Get the handler, where we will check pairing brackets.
 
 	def calcByteLen(self, text):
 		return len(self.encoder(text)[0]) # Calculate the length of the string in bytes (not characters).
 
 	def calcBytePos(self, text, pos):
 		return len(self.encoder(text[: pos])[0]) # Convert position in characters in the byte position.
-
-	# Markdown Brace
-	#===============
-	def OnCheckBrace(self, event):
-		pos = self.GetCurrentPos() # Get the current position.
-
-		text = self.GetText()
-		text_len = self.calcByteLen(text) # Calculate the length of the text in bytes.
-
-		''' Get the text to the left of the cursor. '''
-		text_left = u""
-		if pos > 0:
-			text_left = self.GetTextRange(0, pos)
-
-		''' Get the text to the right of the cursor. '''
-		text_right = u""
-		if pos < text_len:
-			text_right = self.GetTextRange (pos, text_len)
-
-		''' Verify whether there is a left bracket. '''
-		if len(text_left) > 0 and text_left[-1] in "{}()[]<>":
-			match = self.BraceMatch(pos - 1) # Try to find a pairing bracket.
-
-			''' Pair is found. '''
-			if match != wx.stc.STC_INVALID_POSITION:
-				self.BraceHighlight(pos - 1, match) # Highlight both.
-				return
-			else:
-				self.BraceBadLight(pos - 1) # Otherwise highlight one bracket as flawed.
-				return
-		else:
-			self.BraceBadLight(wx.stc.STC_INVALID_POSITION) # In this position, no bracket, disable the backlight.
-
-		''' If not find the left bracket, check whether it is bracket right position. '''
-		if len(text_right) > 0 and text_right[0] in "{}()[]<>":
-			match = self.BraceMatch(pos)
-
-			''' Pair is found. '''
-			if match != wx.stc.STC_INVALID_POSITION:
-				self.BraceHighlight(pos, match) # Highlight both.
-				return
-			else:
-				self.BraceBadLight(pos) # Otherwise highlight one bracket as flawed.
-				return
-		else:
-			self.BraceBadLight(wx.stc.STC_INVALID_POSITION) # In this position, no bracket, disable the backlight.
 
 	# Markdown Highlight
 	#===================
@@ -266,3 +221,8 @@ class cellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 			else:
 				self.SetStyling(text_byte_len, style)
 				pos = text.find(highlight, endLine + 2)
+
+	# Markdown Brace
+	#===============
+	#def OnCheckBrace(self, event):
+		#
