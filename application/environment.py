@@ -27,7 +27,7 @@ limitations under the License.
 import wx
 from wx.lib.embeddedimage import PyEmbeddedImage
 
-config = wx.Config('config/cellaret.conf')
+config = wx.Config('cellabyte/cellaret.conf')
 
 config.SetPath('Main')
 if config.Exists('Select_directory'):

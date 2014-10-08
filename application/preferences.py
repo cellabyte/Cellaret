@@ -28,7 +28,7 @@ import wx
 import environment
 from environment import Cellaret_24
 
-config = wx.Config('config/cellaret.conf')
+config = wx.Config('cellabyte/cellaret.conf')
 
 # Cellaret Preferences (child wx.Frame)
 #==============================================================================

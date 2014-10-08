@@ -2,7 +2,9 @@
 
 DIR=$(dirname $(readlink -f $0))
 CELLARET_PATH=/opt/Cellaret
+CELLABYTE_HOME=$HOME/.cellabyte
 APPLICATIONS_PATH=/usr/share/applications
+# APPLICATIONS_PATH=$XDG_DATA_DIRS/applications
 PKGS='python python-wxtools python-markdown'
 
 ABOUT() {
@@ -52,6 +54,7 @@ Choose:
 [1] Help
 [2] Checking dependencies
 [3] Install Cellaret
+[4] Uninstall Cellaret
 
 [q] Quit
 
@@ -70,7 +73,7 @@ read Choose
 case $Choose in
 	1)
 		HELP_INSTALL
-		read -p '[q] Exit ' answer
+		read -p '[q] Quit' answer
 		case $answer in
 			q)
 				echo ''
@@ -94,7 +97,7 @@ case $Choose in
 		clear
 		echo ''
 		if test -d $CELLARET_PATH; then
-			read -p 'Cellaret already installed. Update it? (Yes/No)? ' answer
+			read -p 'Cellaret already installed. Update it? (Yes/No): ' answer
 			case $answer in
 				y|Y|Yes|yes|YES)
 					echo 'Yes'
@@ -103,11 +106,11 @@ case $Choose in
 					sudo mkdir $CELLARET_PATH
 					sudo cp -rf $DIR/application $CELLARET_PATH/application
 					sudo cp -rf $DIR/translations $CELLARET_PATH/translations
+					sudo cp -rf $DIR/help $CELLARET_PATH/help
 					sudo cp $DIR/cellaret.py $CELLARET_PATH/cellaret
 					sudo chmod 0755 $CELLARET_PATH/cellaret
 					sudo cp $DIR/images/cellaret-32.png $CELLARET_PATH/cellaret.png
 					sudo cp $DIR/LICENSE $CELLARET_PATH/LICENSE
-#					sudo cp $DIR/cellaret.desktop $APPLICATIONS_PATH/cellaret.desktop
 					echo ''
 					echo 'Cellaret updated.'
 					busybox sleep 1
@@ -121,9 +124,13 @@ case $Choose in
 					;;
 			esac
 		else
+			if test ! -d $CELLABYTE_HOME; then
+				mkdir $CELLABYTE_HOME
+			fi
 			sudo mkdir $CELLARET_PATH
 			sudo cp -rf $DIR/application $CELLARET_PATH/application
 			sudo cp -rf $DIR/translations $CELLARET_PATH/translations
+			sudo cp -rf $DIR/help $CELLARET_PATH/help
 			sudo cp $DIR/cellaret.py $CELLARET_PATH/cellaret
 			sudo chmod 0755 $CELLARET_PATH/cellaret
 			sudo cp $DIR/images/cellaret-32.png $CELLARET_PATH/cellaret.png
@@ -138,6 +145,45 @@ case $Choose in
 			fi
 			echo ''
 			echo 'Cellaret installed.'
+			busybox sleep 1
+		fi
+		echo ''
+		;;
+
+	4)
+		clear
+		echo ''
+		if test -d $CELLARET_PATH; then
+			read -p 'Do you really want to uninstall the Cellaret? (Yes/No): ' answer
+			case $answer in
+				y|Y|Yes|yes|YES)
+					echo 'Yes'
+					echo ''
+					sudo rm -rf $CELLARET_PATH
+					if test -x /usr/bin/update-desktop-database; then
+						sudo rm $APPLICATIONS_PATH/cellaret.desktop
+						sudo update-desktop-database -q
+					else
+						sudo rm $APPLICATIONS_PATH/cellaret.desktop
+					fi
+					if test -x /usr/bin/update-menus; then
+						update-menus
+					fi
+					echo ''
+					echo 'Cellaret uninstalled.'
+					busybox sleep 1
+					;;
+				*)
+					echo 'No'
+					echo ''
+					echo 'Exiting...'
+					busybox sleep 1
+#					exit
+					;;
+			esac
+		else
+			echo ''
+			echo 'Cellaret is not installed.'
 			busybox sleep 1
 		fi
 		echo ''
