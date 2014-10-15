@@ -41,7 +41,7 @@ class CellaretPreferences(wx.Frame):
 		self.SetIcon(favicon)
 		self.Centre()
 
-		nb = wx.Notebook(self, -1, style=wx.NB_TOP)
+		nb = wx.Notebook(self, wx.ID_ANY, style=wx.NB_TOP)
 
 		self.main = wx.Panel(nb)
 		self.browser = wx.Panel(nb)
@@ -55,15 +55,15 @@ class CellaretPreferences(wx.Frame):
 
 		# Main Panel
 		#===========
-		wx.StaticText(self.main, -1, _('Select Working directory'), (20, 20))
-		self.cb1SelectDirectory = wx.CheckBox(self.main, -1, '', (20, 40))
+		wx.StaticText(self.main, wx.ID_ANY, _('Select Working directory'), (20, 20))
+		self.cb1SelectDirectory = wx.CheckBox(self.main, wx.ID_ANY, '', (20, 40))
 
 		config.SetPath('Main')
 		self.cb1SelectDirectory.SetValue(config.ReadInt('Select_directory'))
 		environment.WORKING_DIRECTORY = config.Read('Working_directory')
 		config.SetPath('')
 
-		self.WorkingDirectory = wx.TextCtrl(self.main, -1, str(environment.WORKING_DIRECTORY), (40, 40), (385, -1))
+		self.WorkingDirectory = wx.TextCtrl(self.main, wx.ID_ANY, str(environment.WORKING_DIRECTORY), (40, 40), (385, -1))
 
 		closeButton = wx.Button(self.main, wx.ID_CLOSE, pos=(225, 240))
 		self.okMainButton = wx.Button(self.main, wx.ID_OK, pos=(325, 240))
@@ -71,8 +71,8 @@ class CellaretPreferences(wx.Frame):
 
 		# Browser Panel
 		#==============
-		self.cb1Browser = wx.CheckBox(self.browser, -1, _('Print Filename'), (200, 15))
-		self.cb2Browser = wx.CheckBox(self.browser, -1, _('Navigate through the links'), (200, 45))
+		self.cb1Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Print Filename'), (200, 15))
+		self.cb2Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Navigate through the links'), (200, 45))
 
 		config.SetPath('Browser')
 		environment.BROWSER_FONT_SIZE = config.ReadInt('Font_size')
@@ -80,12 +80,12 @@ class CellaretPreferences(wx.Frame):
 		self.cb2Browser.SetValue(config.ReadInt('Navigate_through'))
 		config.SetPath('')
 
-		wx.StaticText(self.browser, -1, _('Width:'), (20, 20))
-		wx.StaticText(self.browser, -1, _('Height:'), (20, 50))
-		wx.StaticText(self.browser, -1, _('Font size:'), (20, 80))
-		self.sc1Browser = wx.SpinCtrl(self.browser, -1, str(environment.BROWSER_WIDTH), (100, 15), (60, -1), min=200, max=2000)
-		self.sc2Browser = wx.SpinCtrl(self.browser, -1, str(environment.BROWSER_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
-		self.sc3Browser = wx.SpinCtrl(self.browser, -1, str(environment.BROWSER_FONT_SIZE), (100, 75), (60, -1), min=8, max=24)
+		wx.StaticText(self.browser, wx.ID_ANY, _('Width:'), (20, 20))
+		wx.StaticText(self.browser, wx.ID_ANY, _('Height:'), (20, 50))
+		wx.StaticText(self.browser, wx.ID_ANY, _('Font size:'), (20, 80))
+		self.sc1Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(environment.BROWSER_WIDTH), (100, 15), (60, -1), min=200, max=2000)
+		self.sc2Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(environment.BROWSER_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
+		self.sc3Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(environment.BROWSER_FONT_SIZE), (100, 75), (60, -1), min=8, max=24)
 
 		closeButton = wx.Button(self.browser, wx.ID_CLOSE, pos=(225, 240))
 		self.okBrowserButton = wx.Button(self.browser, wx.ID_OK, pos=(325, 240))
@@ -93,18 +93,18 @@ class CellaretPreferences(wx.Frame):
 
 		# Editor Panel
 		#=============
-		self.cb1Editor = wx.CheckBox(self.editor, -1, _('Style highlighting'), (200, 15))
-#		self.cb2Editor = wx.CheckBox(self.editor, -1, _('Check brace'), (200, 45))
+		self.cb1Editor = wx.CheckBox(self.editor, wx.ID_ANY, _('Style highlighting'), (200, 15))
+#		self.cb2Editor = wx.CheckBox(self.editor, wx.ID_ANY, _('Check brace'), (200, 45))
 
 		config.SetPath('Editor')
 		self.cb1Editor.SetValue(config.ReadInt('Style_highlighting'))
 #		self.cb2Editor.SetValue(config.ReadInt('Check_brace'))
 		config.SetPath('')
 
-		wx.StaticText(self.editor, -1, _('Width:'), (20, 20))
-		wx.StaticText(self.editor, -1, _('Height:'), (20, 50))
-		self.sc1Editor = wx.SpinCtrl(self.editor, -1, str(environment.EDITOR_WIDTH), (100, 15), (60, -1), min=200, max=2000)
-		self.sc2Editor = wx.SpinCtrl(self.editor, -1, str(environment.EDITOR_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
+		wx.StaticText(self.editor, wx.ID_ANY, _('Width:'), (20, 20))
+		wx.StaticText(self.editor, wx.ID_ANY, _('Height:'), (20, 50))
+		self.sc1Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(environment.EDITOR_WIDTH), (100, 15), (60, -1), min=200, max=2000)
+		self.sc2Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(environment.EDITOR_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
 
 		closeButton = wx.Button(self.editor, wx.ID_CLOSE, pos=(225, 240))
 		self.okEditorButton = wx.Button(self.editor, wx.ID_OK, pos=(325, 240))

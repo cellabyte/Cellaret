@@ -27,9 +27,6 @@ limitations under the License.
 import wx
 #import wx.stc
 import codecs
-
-# GLOBAL VARS
-#==============================================================================
 from environment import *
 
 # Text editor subclass Scintilla

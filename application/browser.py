@@ -28,9 +28,6 @@ import wx
 import webbrowser
 import wx.html as html
 from wx.html import HtmlEasyPrinting
-
-# GLOBAL VARS
-#==============================================================================
 from environment import *
 
 # HTML Window subclass

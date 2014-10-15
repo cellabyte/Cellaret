@@ -25,9 +25,13 @@ limitations under the License.
 '''
 
 import wx
+import os
 import sys
 import codecs
 import application.environment
+
+EXEC_PATH = os.path.dirname(os.path.abspath(__file__))
+application.environment.EXEC_PATH = EXEC_PATH
 
 if len(sys.argv) > 1:
 	MD_PATH_FILE = sys.argv[1]
@@ -35,7 +39,11 @@ if len(sys.argv) > 1:
 
 	try:
 		MD_PATH_FILE = MD_PATH_FILE.decode('utf-8') # omit in Python 3.x
+		MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
+		MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
 		application.environment.MD_PATH_FILE = MD_PATH_FILE
+		application.environment.MD_DIR_NAME = MD_DIR_NAME
+		application.environment.MD_BASE_NAME = MD_BASE_NAME
 	except UnicodeEncodeError:
 		pass
 

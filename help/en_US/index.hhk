@@ -1,0 +1,32 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head></head>
+<body>
+<ul>
+	<li> <object type="text/sitemap">
+		<param name="Name" value="Contents page.">
+		<param name="Local" value="main.html">
+		</object>
+	<li> <object type="text/sitemap">
+		<param name="Name" value="Markdown format.">
+		<param name="Local" value="markdown.html">
+		</object>
+	<li> <object type="text/sitemap">
+		<param name="Name" value="Cellaret help.">
+		<param name="Local" value="cellaret.html">
+		</object>
+	<li> <object type="text/sitemap">
+		<param name="Name" value="Markdown Browser.">
+		<param name="Local" value="browser.html">
+		</object>
+	<li> <object type="text/sitemap">
+		<param name="Name" value="Markdown Editor.">
+		<param name="Local" value="editor.html">
+		</object>
+	<li> <object type="text/sitemap">
+		<param name="Name" value="Cellaret Preferences.">
+		<param name="Local" value="preferences.html">
+		</object>
+</ul>
+</body></html>
+

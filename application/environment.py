@@ -25,6 +25,7 @@ limitations under the License.
 '''
 
 import wx
+import locale
 from wx.lib.embeddedimage import PyEmbeddedImage
 
 config = wx.Config('cellabyte/cellaret.conf')
@@ -83,9 +84,14 @@ else:
 	config.WriteInt('Check_brace', CHECK_BRACE)
 config.SetPath('')
 
+OS_LANGUAGE, OS_ENCODING = locale.getdefaultlocale()
+
 # Don't edit these variables
 #============================
+EXEC_PATH = ''
 MD_PATH_FILE = ''
+MD_DIR_NAME = ''
+MD_BASE_NAME = ''
 MD_PRINT_DATA = ''
 MD_FILE_ARGV = False
 

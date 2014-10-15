@@ -40,12 +40,9 @@ import gettext
 from browser import cellaHtmlWindow, cellaPrinter
 from editor import cellaStyledTextCtrl
 from preferences import CellaretPreferences
-
-gettext.install('cellaret', './translations', unicode=True)
-
-# GLOBAL VARS
-#==============================================================================
 from environment import *
+
+gettext.install('cellaret', os.path.join(EXEC_PATH, 'translations'), unicode=True)
 
 # Markdown Browser (parent wx.Frame)
 #==============================================================================
@@ -68,12 +65,12 @@ class MarkdownBrowser(wx.Frame):
 		self.Show(True)
 
 		if MD_FILE_ARGV:
-			self.filePath = codecs.open(os.path.join(MD_PATH_FILE), mode="r", encoding="utf-8") # open the file and encoding
+			self.filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			self.mdText = self.filePath.read() # read Markdown file
 			self.filePath.close() # close the file
 			self.mdHtml = markdown.markdown(self.mdText) # convert Markdown to html
 			self.cellaBrowser.SetPage(self.mdHtml) # deduce the content as html
-			self.SetTitle(MD_PATH_FILE + " - Cellaret")
+			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 			global MD_PRINT_DATA
 			MD_PRINT_DATA = self.mdHtml
 
@@ -102,27 +99,31 @@ class MarkdownBrowser(wx.Frame):
 		menuBar.Append(menu, _('&File'))
 
 		menu = wx.Menu()
+		self.editItem = menu.Append(wx.ID_EDIT, _('&Editor...\tCtrl-E'), _('Markdown text editor'))
+		self.Bind(wx.EVT_MENU, self.OnEdit, self.editItem)
+		#selectAllItem = menu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
+		#self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllItem)
 		#copySelectedItem = menu.Append(wx.ID_COPY, _('&Copy selected\tCtrl-C'), '')
 		#self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedItem)
-		self.editItem = menu.Append(wx.ID_EDIT, _('&Editor\tCtrl-E'), _('Markdown text editor'))
-		self.Bind(wx.EVT_MENU, self.OnEdit, self.editItem)
 		menu.AppendSeparator()
-		self.preferencesItem = menu.Append(wx.ID_PREFERENCES, _('Preferences...'), '')
-		self.Bind(wx.EVT_MENU, self.OnPreferences, self.preferencesItem)
+		preferencesItem = menu.Append(wx.ID_PREFERENCES, _('Preferences...'), '')
+		self.Bind(wx.EVT_MENU, self.OnPreferences, preferencesItem)
 		menuBar.Append(menu, _('E&dit'))
 
 		menu = wx.Menu()
 		refreshItem = menu.Append(wx.ID_REFRESH, _('Refresh\tF5'), '')
 		self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
 		menu.AppendSeparator()
-		self.fullscreenItem = menu.Append(wx.ID_ANY, _('Full Screen\tF11'), _('Toggles Full Screen Mode'), wx.ITEM_CHECK)
-		self.Bind(wx.EVT_MENU, self.OnFullScreen, self.fullscreenItem)
+		fullscreenItem = menu.Append(wx.ID_ANY, _('Full Screen\tF11'), _('Toggles Full Screen Mode'), wx.ITEM_CHECK)
+		self.Bind(wx.EVT_MENU, self.OnFullScreen, fullscreenItem)
 		self.statusbarItem = menu.Append(wx.ID_ANY, _('Show Status &Bar\tCtrl-B'), '', wx.ITEM_CHECK)
 		menu.Check(self.statusbarItem.GetId(), True)
 		self.Bind(wx.EVT_MENU, self.OnStatusBar, self.statusbarItem)
 		menuBar.Append(menu, _('&View'))
 
 		menu = wx.Menu()
+		contentsItem = menu.Append(wx.ID_HELP, _('Contents...\tF1'), _('Help about this program'))
+		self.Bind(wx.EVT_MENU, self.OnContents, contentsItem)
 		aboutItem = menu.Append(wx.ID_ABOUT, _('About'), _('Information about this program'))
 		self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
 		menuBar.Append(menu, _('&Help'))
@@ -167,8 +168,10 @@ class MarkdownBrowser(wx.Frame):
 
 	def OnOpen(self, event):
 		global MD_PATH_FILE
+		global MD_DIR_NAME
+		global MD_BASE_NAME
 		if MD_PATH_FILE:
-			dir = os.path.dirname(MD_PATH_FILE)
+			dir = MD_DIR_NAME
 		elif SELECT_DIRECTORY:
 			dir = WORKING_DIRECTORY
 		else:
@@ -178,14 +181,16 @@ class MarkdownBrowser(wx.Frame):
 		fileOpenDlg = wx.FileDialog(self, _('Choose a file to open'), defaultDir=dir, wildcard=wildcardStr, style=wx.OPEN)
 		if fileOpenDlg.ShowModal() == wx.ID_OK:
 			MD_PATH_FILE = fileOpenDlg.GetPath()
+			MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
+			MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
 			try:
-				file = codecs.open(os.path.join(MD_PATH_FILE), mode="r", encoding="utf-8") # open the file and encoding
+				file = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 				mdText = file.read() # read Markdown file
 				file.close() # close the file
 
 				mdHtml = markdown.markdown(mdText) # convert Markdown to html
 				self.cellaBrowser.SetPage(mdHtml) # deduce the content as html
-				self.SetTitle(MD_PATH_FILE + " - Cellaret")
+				self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
 				global MD_PRINT_DATA
 				MD_PRINT_DATA = mdHtml
@@ -200,22 +205,24 @@ class MarkdownBrowser(wx.Frame):
 
 	def OnRefresh(self, event):
 		if MD_PATH_FILE:
-			filePath = codecs.open(os.path.join(MD_PATH_FILE), mode="r", encoding="utf-8") # open the file and encoding
+			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			mdText = filePath.read() # read Markdown file
 			filePath.close() # close the file
 
 			mdHtml = markdown.markdown(mdText) # convert Markdown to html
-			self.cellaBrowser.SetPage(mdHtml) # вdeduce the content as html
-			self.SetTitle(MD_PATH_FILE + " - Cellaret")
+			self.cellaBrowser.SetPage(mdHtml) # deduce the content as html
+			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
 			global MD_PRINT_DATA
 			MD_PRINT_DATA = mdHtml
 
+	def SetTitlePlus(self, event):
+		self.SetTitle('+ ' + MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
+
 	def OnSaveAsHtml(self, event):
 		if MD_PATH_FILE:
 			dir = os.path.dirname(MD_PATH_FILE)
-			mdFile = os.path.basename(MD_PATH_FILE)
-			shortName, extName = os.path.splitext(mdFile)
+			shortName, extName = os.path.splitext(MD_BASE_NAME)
 			htmlFile = shortName + '.html'
 		elif SELECT_DIRECTORY:
 			dir = WORKING_DIRECTORY
@@ -232,7 +239,7 @@ class MarkdownBrowser(wx.Frame):
 			htmlFile = startHtml + MD_PRINT_DATA + endHtml
 			htmlPathFile = save_dlg.GetPath()
 			try:
-				file = codecs.open(htmlPathFile, 'w', encoding="utf-8") # utf-8
+				file = codecs.open(htmlPathFile, 'w', encoding='utf-8')
 				file.write(htmlFile)
 				file.close()
 
@@ -264,8 +271,8 @@ class MarkdownBrowser(wx.Frame):
 	def OnEdit(self, event):
 		if MD_PATH_FILE:
 			self.DisableMenuBrowser(self)
-			global MarkdownNew
-			MarkdownNew = False
+			global markdownNew
+			markdownNew = False
 			self.child = MarkdownEditor(self)
 			self.child.Show()
 		else:
@@ -273,8 +280,8 @@ class MarkdownBrowser(wx.Frame):
 
 	def OnNew(self, event):
 		self.DisableMenuBrowser(self)
-		global MarkdownNew
-		MarkdownNew = True
+		global markdownNew
+		markdownNew = True
 		self.child = MarkdownEditor(self)
 		self.child.Show()
 
@@ -298,6 +305,13 @@ class MarkdownBrowser(wx.Frame):
 		self.preferences = CellaretPreferences(self)
 		self.preferences.Show()
 
+	# Open Help frame
+	#=================
+	def OnContents(self, event):
+		self.contents = MarkdownHelp(self)
+		self.contents.ShowContents()
+		self.contents.Show()
+
 	# About dialog
 	#==============
 	def OnAbout(self, event):
@@ -320,9 +334,37 @@ class MarkdownBrowser(wx.Frame):
 
 	def OnExit(self, event):
 		if self.child:
-			self.child.QuitApplication(self) # if open editor, QuitApplication (child wx.Frame)
+			self.child.OnQuitApplication(self) # if open editor, OnQuitApplication (child wx.Frame)
 		else:
 			wx.Exit()
+
+# Markdown Help
+#==============================================================================
+class MarkdownHelp(wx.Frame):
+
+	title = _('Cellaret Help')
+
+	def __init__(self, parent):
+		wx.Frame.__init__(self, None, size = (800, 600), title=self.title)
+		favicon = Cellaret_24.GetIcon()
+		self.SetIcon(favicon)
+		self.Centre()
+
+		if os.path.isdir(os.path.join(EXEC_PATH, 'help', OS_LANGUAGE)):
+			helpPath = os.path.join(EXEC_PATH, 'help', OS_LANGUAGE)
+		else:
+			helpPath = os.path.join(EXEC_PATH, 'help', 'en_US')
+
+		self.helpWindow = html.HtmlHelpWindow(self, wx.ID_ANY, wx.DefaultPosition, self.GetClientSize(), wx.TAB_TRAVERSAL | wx.BORDER_NONE, html.HF_DEFAULT_STYLE)
+		self.helpController = html.HtmlHelpController(html.HF_EMBEDDED)
+		self.helpController.SetHelpWindow(self.helpWindow)
+		self.helpController.AddBook(os.path.join(helpPath, 'contents.hhp'))
+
+	def ShowContents(self):
+		self.helpController.DisplayContents()
+
+	def ShowHelp(self, subHelp):
+		self.helpController.Display(subHelp)
 
 # Markdown Editor (child wx.Frame)
 #==============================================================================
@@ -336,7 +378,7 @@ class MarkdownEditor(wx.Frame):
 		favicon = Cellaret_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
-		self.Bind(wx.EVT_CLOSE, self.CloseEditor)
+		self.Bind(wx.EVT_CLOSE, self.OnCloseEditor)
 
 		self.iconToolbar = self.CreateIconToolbar()
 
@@ -347,20 +389,17 @@ class MarkdownEditor(wx.Frame):
 		self.fileOpenDir = os.getcwd()
 		self.edOverwriteMode = False # For the future implementation of the overwrite.
 
-		# Editor cellaEditor
-		#===================
+		# Editor cellaEditor (Scintilla)
+		#===============================
 		self.cellaEditor = cellaStyledTextCtrl(self) # Text editor subclass
-
 		self.cellaEditor.SetBackgroundColour(wx.WHITE)
-
-		# Scintilla
 		self.cellaEditor.WrapMode = True # Scintilla Wrap mode
 #		self.cellaEditor.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, "size:%d" % EDITOR_FONT_SIZE) # Style for the default text
 
-		if not MarkdownNew:
-			filePath = codecs.open(MD_PATH_FILE, mode="r", encoding="utf-8") # open the file and encoding
+		if not markdownNew:
+			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			self.cellaEditor.AppendText(filePath.read()) # read and deduce Markdown text
-			self.SetTitle(MD_PATH_FILE + _(' - Cellaret File Editor'))
+			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 			filePath.close() # close the file
 			self.cellaEditor.EmptyUndoBuffer() # clear the Undo buffer
 			self.edLastFilenameSaved = MD_PATH_FILE # path to the file (for saving)
@@ -371,11 +410,11 @@ class MarkdownEditor(wx.Frame):
 		self.markdownTextIsModified = False # Set False, because the text was changed.
 		self.statusbar = self.CreateStatusBar()
 
-		self.cellaEditor.Bind(wx.stc.EVT_STC_MODIFIED, self.OnTextChanged)
-#		self.cellaEditor.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
-#		self.Bind(wx.EVT_UPDATE_UI, self.OnKeyDown, self.cellaEditor)
+		self.cellaEditor.Bind(wx.stc.EVT_STC_MODIFIED, self.IfTextChanged)
+		self.cellaEditor.Bind(wx.EVT_KEY_DOWN, self.IfKeyDown)
+#		self.Bind(wx.EVT_UPDATE_UI, self.IfKeyDown, self.cellaEditor)
 
-		# Positioning iconToolbar & textCtrl
+		# Positioning iconToolbar & Scintilla
 		#=====================================
 		edPanelSizer = wx.BoxSizer(wx.VERTICAL)
 		edPanelSizer.Add(self.iconToolbar, proportion=0, flag=wx.EXPAND)
@@ -386,7 +425,7 @@ class MarkdownEditor(wx.Frame):
 	#====================
 	def CreateIconToolbar(self):
 
-		self.toolbar = wx.ToolBar(self, -1)
+		self.toolbar = wx.ToolBar(self, wx.ID_ANY)
 
 		# Append to file
 		self.toolbar.AddSimpleTool(wx.ID_OPEN, wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN), _('Append to File'), '')
@@ -458,26 +497,32 @@ class MarkdownEditor(wx.Frame):
 
 		# CLOSE this frame.
 		self.toolbar.AddSimpleTool(wx.ID_CLOSE, wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK), _('Close Editor'), '')
-		self.Bind(wx.EVT_TOOL, self.CloseEditor, id=wx.ID_CLOSE)
+		self.Bind(wx.EVT_TOOL, self.OnCloseEditor, id=wx.ID_CLOSE)
 
 		# EXIT this app.
 		self.toolbar.AddSimpleTool(wx.ID_EXIT, wx.ArtProvider.GetBitmap(wx.ART_QUIT), _('Quit Cellaret'), '')
-		self.Bind(wx.EVT_TOOL, self.QuitApplication, id=wx.ID_EXIT)
+		self.Bind(wx.EVT_TOOL, self.OnQuitApplication, id=wx.ID_EXIT)
 
 		self.toolbar.Realize()
 
 		return self.toolbar
 
-	def OnTextChanged(self, event):
+	def IfTextChanged(self, event):
+		if not markdownNew:
+			self.SetTitle('*' + MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 		self.markdownTextIsModified = True
 		self.toolbar.EnableTool(wx.ID_SAVE, True) # Save highlight
 		self.toolbar.EnableTool(wx.ID_UNDO, True) # Undo highlight
 		event.Skip()
 
-	#def OnKeyDown(self, event):
-		#keycode = event.GetKeyCode()
-		#print keycode
-		#event.Skip()
+	def IfKeyDown(self, event):
+		keycode = event.GetKeyCode()
+#		print keycode
+		if keycode == 340:
+			self.contents = MarkdownHelp(self)
+			self.contents.ShowHelp('Markdown')
+			self.contents.Show()
+		event.Skip()
 
 	def OnAppendToFile(self, event):
 		wildcardStr = 'Markdown (*.md)|*.md|All files (*)|*'
@@ -485,7 +530,7 @@ class MarkdownEditor(wx.Frame):
 		if fileOpenDlg.ShowModal() == wx.ID_OK:
 			PathFile = fileOpenDlg.GetPath()
 			try:
-				file = codecs.open(PathFile, 'r', encoding="utf-8") # utf-8
+				file = codecs.open(PathFile, 'r', encoding='utf-8') # open the file and encoding
 				mdText = file.read()
 				file.close()
 
@@ -503,15 +548,19 @@ class MarkdownEditor(wx.Frame):
 	def OnSaveFile(self, event):
 		if self.edLastFilenameSaved:
 			try:
-				file = codecs.open(MD_PATH_FILE, 'w', encoding="utf-8") # utf-8
+				file = codecs.open(MD_PATH_FILE, 'w', encoding='utf-8') # open to the write and encoding
 				mdText = self.cellaEditor.GetText()
 				file.write(mdText)
 				file.close()
 
-				self.statusbar.SetStatusText(os.path.basename(self.edLastFilenameSaved) + _(' Saved'), 0)
+				self.edLastFilenameSaved = MD_BASE_NAME
+				self.statusbar.SetStatusText(self.edLastFilenameSaved + _(' Saved'), 0)
+				self.statusbar.SetStatusText('', 1)
 				self.markdownTextIsModified = False
+				self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 
 				self.parent.OnRefresh(self) # Refresh browser (parent wx.Frame)
+				self.parent.SetTitlePlus(self) # Setting "+" on Title browser (parent wx.Frame)
 				self.toolbar.EnableTool(wx.ID_SAVE, False)
 
 			except IOError, error:
@@ -522,9 +571,11 @@ class MarkdownEditor(wx.Frame):
 
 	def OnSaveAsFile(self, event):
 		global MD_PATH_FILE
+		global MD_DIR_NAME
+		global MD_BASE_NAME
 		if MD_PATH_FILE:
-			dir = os.path.dirname(MD_PATH_FILE)
-			saveAs = os.path.basename(MD_PATH_FILE)
+			dir = MD_DIR_NAME
+			saveAs = MD_BASE_NAME
 		elif SELECT_DIRECTORY:
 			dir = WORKING_DIRECTORY
 			saveAs = _('new.md')
@@ -536,17 +587,22 @@ class MarkdownEditor(wx.Frame):
 		save_dlg = wx.FileDialog(self, message=_('Save file As...'), defaultDir=dir, defaultFile=saveAs, wildcard=wildcardStr, style=wx.SAVE | wx.OVERWRITE_PROMPT)
 		if save_dlg.ShowModal() == wx.ID_OK:
 			MD_PATH_FILE = save_dlg.GetPath()
+			MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
+			MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
 			try:
-				file = codecs.open(MD_PATH_FILE, 'w', encoding="utf-8") # utf-8
+				file = codecs.open(MD_PATH_FILE, 'w', encoding='utf-8') # open to the write and encoding
 				mdText = self.cellaEditor.GetText()
 				file.write(mdText)
 				file.close()
 
-				self.edLastFilenameSaved = os.path.basename(MD_PATH_FILE)
+				global markdownNew
+				markdownNew = False
+
+				self.edLastFilenameSaved = MD_BASE_NAME
 				self.statusbar.SetStatusText(self.edLastFilenameSaved + _(' Saved'), 0)
-				self.markdownTextIsModified = False
 				self.statusbar.SetStatusText('', 1)
-				self.SetTitle(MD_PATH_FILE + _(' - Cellaret File Editor'))
+				self.markdownTextIsModified = False
+				self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 
 				self.parent.OnRefresh(self) # Refresh browser (parent wx.Frame)
 				self.toolbar.EnableTool(wx.ID_SAVE, False)
@@ -582,22 +638,22 @@ class MarkdownEditor(wx.Frame):
 			self.toolbar.EnableTool(wx.ID_REDO, False)
 
 	def OnBold(self, event):
-		self.insertTags('**', '**')
+		self.InsertTags('**', '**')
 		self.markdownTextIsModified = True
 
 	def OnItalic(self, event):
-		self.insertTags('_', '_')
+		self.InsertTags('_', '_')
 		self.markdownTextIsModified = True
 
 	def OnHyperlink(self, event):
-		self.insertTags('<', '>')
+		self.InsertTags('<', '>')
 		self.markdownTextIsModified = True
 
 	def OnNamedHyperlink(self, event):
 		dlg = wx.TextEntryDialog(self, _('Enter Hyperlink'), _('URL Entry'))
 #		dlg.SetValue('URL')
 		if dlg.ShowModal() == wx.ID_OK:
-			self.insertTags('[', '](%s "")' % dlg.GetValue())
+			self.InsertTags('[', '](%s "")' % dlg.GetValue())
 			self.markdownTextIsModified = True
 		dlg.Destroy()
 
@@ -620,7 +676,7 @@ class MarkdownEditor(wx.Frame):
 
 		insertImageDlg.Destroy()
 
-	def insertTags(self, starttag, stoptag):
+	def InsertTags(self, starttag, stoptag):
 		(start, to) = self.cellaEditor.GetSelection()
 		to += len(starttag)
 		self.cellaEditor.GotoPos(start)
@@ -634,7 +690,7 @@ class MarkdownEditor(wx.Frame):
 		#self.cellaEditor.Remove(frm, to)
 		#self.markdownTextIsModified = True
 
-	def CloseEditor(self, event):
+	def OnCloseEditor(self, event):
 		''' If there were changes, request save the file. '''
 		if self.markdownTextIsModified:
 			dlg = wx.MessageDialog(self, _('File is modified. Save before exit?'), '', wx.YES_NO | wx.YES_DEFAULT | wx.CANCEL | wx.ICON_QUESTION)
@@ -653,7 +709,7 @@ class MarkdownEditor(wx.Frame):
 			self.Destroy() # Destroy MarkdownEditor(wx.Frame)
 			self.parent.EnableMenuBrowser(self) # Enable menu items (parent wx.Frame)
 
-	def QuitApplication(self, event):
+	def OnQuitApplication(self, event):
 		''' If there were changes, request save the file. '''
 		if self.markdownTextIsModified:
 			dlg = wx.MessageDialog(self, _('File is modified. Save before exit?'), '', wx.YES_NO | wx.YES_DEFAULT | wx.CANCEL | wx.ICON_QUESTION)
