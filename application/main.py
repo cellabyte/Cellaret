@@ -101,10 +101,11 @@ class MarkdownBrowser(wx.Frame):
 		menu = wx.Menu()
 		self.editItem = menu.Append(wx.ID_EDIT, _('&Editor...\tCtrl-E'), _('Markdown text editor'))
 		self.Bind(wx.EVT_MENU, self.OnEdit, self.editItem)
-		#selectAllItem = menu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
-		#self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllItem)
-		#copySelectedItem = menu.Append(wx.ID_COPY, _('&Copy selected\tCtrl-C'), '')
-		#self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedItem)
+		menu.AppendSeparator()
+		selectAllItem = menu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
+		self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllItem)
+		copySelectedItem = menu.Append(wx.ID_COPY, _('&Copy selected\tCtrl-C'), '')
+		self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedItem)
 		menu.AppendSeparator()
 		preferencesItem = menu.Append(wx.ID_PREFERENCES, _('Preferences...'), '')
 		self.Bind(wx.EVT_MENU, self.OnPreferences, preferencesItem)
@@ -134,12 +135,11 @@ class MarkdownBrowser(wx.Frame):
 		self.popupmenu = wx.Menu()
 		refreshContextItem = self.popupmenu.Append(wx.ID_REFRESH, _('Refresh'), '')
 		self.Bind(wx.EVT_MENU, self.OnRefresh, refreshContextItem)
-
-		#selectAllContextItem = self.popupmenu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
-		#self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllContextItem)
-
-		copySelectedContextItem = self.popupmenu.Append(wx.ID_COPY, _('&Copy selected\tCtrl-C'), '')
-#		self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedContextItem)
+		copySelectedContextItem = self.popupmenu.Append(wx.ID_COPY, _('Copy selected'), '')
+		self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedContextItem)
+		self.popupmenu.AppendSeparator()
+		selectAllContextItem = self.popupmenu.Append(wx.ID_SELECTALL, _('Select All'), '')
+		self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllContextItem)
 
 		# Context Menu Event
 		self.cellaBrowser.Bind(wx.EVT_CONTEXT_MENU, self.OnShowPopup)
@@ -248,11 +248,11 @@ class MarkdownBrowser(wx.Frame):
 				dlg.ShowModal()
 		save_dlg.Destroy()
 
-	#def OnSelectAll(self, event):
-		#
+	def OnSelectAll(self, event):
+		self.cellaBrowser.SelectsAllText()
 
-	#def OnCopySelected(self, event):
-		#
+	def OnCopySelected(self, event):
+		self.cellaBrowser.SelectionToClipboard()
 
 	# Printer dialog
 	#================
@@ -478,15 +478,15 @@ class MarkdownEditor(wx.Frame):
 
 		self.toolbar.AddSeparator()
 
-		# Hyperlink
-		hyperlinkID = wx.NewId()
-		self.toolbar.AddSimpleTool(hyperlinkID, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Hyperlink'), '')
-		self.Bind(wx.EVT_TOOL, self.OnHyperlink, id=hyperlinkID)
-
 		# Named Hyperlink
 		namedHyperlinkID = wx.NewId()
 		self.toolbar.AddSimpleTool(namedHyperlinkID, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Named Hyperlink'), '')
 		self.Bind(wx.EVT_TOOL, self.OnNamedHyperlink, id=namedHyperlinkID)
+
+		# Hyperlink
+		hyperlinkID = wx.NewId()
+		self.toolbar.AddSimpleTool(hyperlinkID, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Hyperlink'), '')
+		self.Bind(wx.EVT_TOOL, self.OnHyperlink, id=hyperlinkID)
 
 		# Insert Image
 		insertImageID = wx.NewId()
@@ -677,7 +677,7 @@ class MarkdownEditor(wx.Frame):
 		insertImageDlg.Destroy()
 
 	def InsertTags(self, starttag, stoptag):
-		(start, to) = self.cellaEditor.GetSelection()
+		start, to = self.cellaEditor.GetSelection()
 		to += len(starttag)
 		self.cellaEditor.GotoPos(start)
 		self.cellaEditor.AddText(starttag)
@@ -686,8 +686,8 @@ class MarkdownEditor(wx.Frame):
 		self.cellaEditor.GotoPos(to+len(stoptag))
 
 	#def OnDelete(self, event):
-		#frm, to = self.cellaEditor.GetSelection()
-		#self.cellaEditor.Remove(frm, to)
+		#start, to = self.cellaEditor.GetSelection()
+		#self.cellaEditor.Remove(start, to)
 		#self.markdownTextIsModified = True
 
 	def OnCloseEditor(self, event):

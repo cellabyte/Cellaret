@@ -72,12 +72,12 @@ class CellaretPreferences(wx.Frame):
 		# Browser Panel
 		#==============
 		self.cb1Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Print Filename'), (200, 15))
-		self.cb2Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Navigate through the links'), (200, 45))
+		self.cb2Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Open link in a web browser'), (200, 45))
 
 		config.SetPath('Browser')
 		environment.BROWSER_FONT_SIZE = config.ReadInt('Font_size')
 		self.cb1Browser.SetValue(config.ReadInt('Print_filename'))
-		self.cb2Browser.SetValue(config.ReadInt('Navigate_through'))
+		self.cb2Browser.SetValue(config.ReadInt('Open_link'))
 		config.SetPath('')
 
 		wx.StaticText(self.browser, wx.ID_ANY, _('Width:'), (20, 20))
@@ -132,7 +132,7 @@ class CellaretPreferences(wx.Frame):
 		config.WriteInt('Height', self.sc2Browser.GetValue())
 		config.WriteInt('Font_size', self.sc3Browser.GetValue())
 		config.WriteInt('Print_filename', self.cb1Browser.GetValue())
-		config.WriteInt('Navigate_through', self.cb2Browser.GetValue())
+		config.WriteInt('Open_link', self.cb2Browser.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Browser Configuration saved. Program restart required.'))
 

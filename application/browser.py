@@ -39,8 +39,17 @@ class cellaHtmlWindow(html.HtmlWindow):
 			self.SetStandardFonts(BROWSER_FONT_SIZE)
 			self.SetBackgroundColour(wx.WHITE)
 
+	def SelectsAllText(self):
+		html.HtmlWindow.SelectAll(self)
+
+	def SelectionToClipboard(self):
+		wx.TheClipboard.Open()
+		wx.TheClipboard.Clear()
+		wx.TheClipboard.SetData(wx.TextDataObject(self.SelectionToText()))
+		wx.TheClipboard.Close()
+
 	def OnLinkClicked(self, linkinfo):
-		if NAVIGATE_THROUGH_LINK:
+		if WEBBROWSER_OPEN_LINK:
 			ahref = linkinfo.GetHref()
 			if ahref.startswith('#'):
 				self.base_OnLinkClicked(linkinfo) # Navigate through the link.

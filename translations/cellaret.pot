@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cellaret 0.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-15 15:03+0400\n"
+"POT-Creation-Date: 2014-10-20 13:37+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,60 +69,72 @@ msgstr ""
 msgid "Markdown text editor"
 msgstr ""
 
-#: application/main.py:109
+#: application/main.py:105
+msgid "Select &All\tCtrl-A"
+msgstr ""
+
+#: application/main.py:107
+msgid "&Copy selected\tCtrl-C"
+msgstr ""
+
+#: application/main.py:110
 msgid "Preferences..."
 msgstr ""
 
-#: application/main.py:111
+#: application/main.py:112
 msgid "E&dit"
 msgstr ""
 
-#: application/main.py:114
+#: application/main.py:115
 msgid "Refresh\tF5"
 msgstr ""
 
-#: application/main.py:117
+#: application/main.py:118
 msgid "Full Screen\tF11"
 msgstr ""
 
-#: application/main.py:117
+#: application/main.py:118
 msgid "Toggles Full Screen Mode"
 msgstr ""
 
-#: application/main.py:119
+#: application/main.py:120
 msgid "Show Status &Bar\tCtrl-B"
 msgstr ""
 
-#: application/main.py:122
+#: application/main.py:123
 msgid "&View"
 msgstr ""
 
-#: application/main.py:125
+#: application/main.py:126
 msgid "Contents...\tF1"
 msgstr ""
 
-#: application/main.py:125
+#: application/main.py:126
 msgid "Help about this program"
 msgstr ""
 
-#: application/main.py:127
+#: application/main.py:128
 msgid "About"
 msgstr ""
 
-#: application/main.py:127
+#: application/main.py:128
 msgid "Information about this program"
 msgstr ""
 
-#: application/main.py:129
+#: application/main.py:130
 msgid "&Help"
 msgstr ""
 
-#: application/main.py:135
+#: application/main.py:136
 msgid "Refresh"
 msgstr ""
 
+#: application/main.py:138
+msgid "Copy selected"
+msgstr ""
+
 #: application/main.py:141
-msgid "&Copy selected\tCtrl-C"
+msgid "Select All"
 msgstr ""
 
 #: application/main.py:181 application/main.py:529
@@ -200,11 +212,11 @@ msgid "Italic"
 msgstr ""
 
 #: application/main.py:483
-msgid "Hyperlink"
+msgid "Named Hyperlink"
 msgstr ""
 
 #: application/main.py:488
-msgid "Named Hyperlink"
+msgid "Hyperlink"
 msgstr ""
 
 #: application/main.py:493
@@ -243,11 +255,11 @@ msgstr ""
 msgid "File is modified. Save before exit?"
 msgstr ""
 
-#: application/browser.py:56
+#: application/browser.py:65
 msgid "copied to the Clipboard"
 msgstr ""
 
-#: application/browser.py:56
+#: application/browser.py:65
 msgid "Link copy to Clipboard"
 msgstr ""
 
@@ -276,7 +288,7 @@ msgid "Print Filename"
 msgstr ""
 
 #: application/preferences.py:75
-msgid "Navigate through the links"
+msgid "Open link in a web browser"
 msgstr ""
 
 #: application/preferences.py:83 application/preferences.py:104

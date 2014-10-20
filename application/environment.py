@@ -58,11 +58,11 @@ if config.Exists('Print_filename'):
 else:
 	PRINT_FILENAME = False # Print the filename on the printer page.
 	config.WriteInt('Print_filename', PRINT_FILENAME)
-if config.Exists('Navigate_through'):
-	NAVIGATE_THROUGH_LINK = config.ReadInt('Navigate_through')
+if config.Exists('Open_link'):
+	WEBBROWSER_OPEN_LINK = config.ReadInt('Open_link')
 else:
-	NAVIGATE_THROUGH_LINK = False # Navigate through the all links.
-	config.WriteInt('Navigate_through', NAVIGATE_THROUGH_LINK)
+	WEBBROWSER_OPEN_LINK = False # Open link in a web browser.
+	config.WriteInt('Open_link', WEBBROWSER_OPEN_LINK)
 config.SetPath('')
 
 config.SetPath('Editor')

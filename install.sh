@@ -41,6 +41,17 @@ Install help
 This install.sh file were tested only in Ubuntu 12.04 and 14.04.
 
 EOF
+	read -p '[q] Quit ' answer
+	case $answer in
+		q)
+			echo ''
+			echo 'Exiting...'
+			busybox sleep 1
+			exit
+			;;
+		*)
+			HELP_INSTALL
+	esac
 }
 
 SHOW_MENU() {
@@ -73,14 +84,6 @@ read Choose
 case $Choose in
 	1)
 		HELP_INSTALL
-		read -p '[q] Quit' answer
-		case $answer in
-			q)
-				echo ''
-				echo 'Exiting...'
-				busybox sleep 1
-				;;
-		esac
 		;;
 
 	2)
@@ -120,7 +123,6 @@ case $Choose in
 					echo ''
 					echo 'Exiting...'
 					busybox sleep 1
-#					exit
 					;;
 			esac
 		else
@@ -178,7 +180,6 @@ case $Choose in
 					echo ''
 					echo 'Exiting...'
 					busybox sleep 1
-#					exit
 					;;
 			esac
 		else
@@ -192,6 +193,5 @@ case $Choose in
 	*)
 		echo 'Exiting...'
 		busybox sleep 1
-#		exit
 		;;
 esac
