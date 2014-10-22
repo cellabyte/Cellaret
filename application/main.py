@@ -56,11 +56,11 @@ class MarkdownBrowser(wx.Frame):
 		self.Bind(wx.EVT_CLOSE, self.OnExit)
 
 		# BROWSER STATE VARS
-		#===================
+		#====================
 		self.child = None
 
 		# Browser cellaBrowser
-		#=====================
+		#======================
 		self.cellaBrowser = cellaHtmlWindow(self) # HTML Window subclass
 		self.Show(True)
 
@@ -75,96 +75,107 @@ class MarkdownBrowser(wx.Frame):
 			MD_PRINT_DATA = self.mdHtml
 
 		# Menu menuBar
-		#=============
+		#==============
+		self.fileMenu = wx.Menu()
+		self.editMenu = wx.Menu()
+		self.viewMenu = wx.Menu()
+		helpMenu = wx.Menu()
+		exportSubMenu = wx.Menu()
+		self.contextMenu = wx.Menu()
+
+		ID_HTML = wx.NewId()
+		ID_FULLSCREEN = wx.NewId()
+		self.ID_STATUSBAR = wx.NewId()
+
+		self.fileMenu.Append(wx.ID_NEW, _('&New\tCtrl-N'), _('Creates a new document'))
+		self.fileMenu.Append(wx.ID_OPEN, _('&Open\tCtrl-O'), _('Open an existing file'))
+		self.fileMenu.AppendSeparator()
+		self.fileMenu.AppendMenu(wx.ID_ANY, _('&Export to'), exportSubMenu)
+		exportSubMenu.Append(ID_HTML, _('&HTML file'), '')
+		self.fileMenu.AppendSeparator()
+		self.fileMenu.Append(wx.ID_PREVIEW, _('Print Pre&view\tShift-Ctrl-P'), '')
+		self.fileMenu.Append(wx.ID_PRINT, _('&Print\tCtrl-P'), '')
+		self.fileMenu.AppendSeparator()
+		self.fileMenu.Append(wx.ID_EXIT, _('&Quit Cellaret\tCtrl-Q'), _('Close window and exit program.'))
+
+		self.editMenu.Append(wx.ID_EDIT, _('&Editor...\tCtrl-E'), _('Markdown text editor'))
+		self.editMenu.AppendSeparator()
+		self.editMenu.Append(wx.ID_COPY, _('&Copy\tCtrl-C'), '')
+		self.editMenu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
+		self.editMenu.AppendSeparator()
+		self.editMenu.Append(wx.ID_PREFERENCES, _('Prefere&nces...'), '')
+
+		self.viewMenu.Append(wx.ID_REFRESH, _('&Refresh\tF5'), '')
+		self.viewMenu.AppendSeparator()
+		self.viewMenu.Append(ID_FULLSCREEN, _('F&ull Screen\tF11'), _('Toggles Full Screen Mode'), wx.ITEM_CHECK)
+		self.viewMenu.Append(self.ID_STATUSBAR, _('Status &Bar\tCtrl-B'), '', wx.ITEM_CHECK)
+
+		helpMenu.Append(wx.ID_HELP, _('&Contents...\tF1'), _('Help about this program'))
+		helpMenu.Append(wx.ID_ABOUT, _('&About'), _('Information about this program'))
+
+		self.viewMenu.Check(self.ID_STATUSBAR, True)
+
 		menuBar = wx.MenuBar()
-
-		menu = wx.Menu()
-		self.newItem = menu.Append(wx.ID_NEW, _('&New\tCtrl-N'), _('Creates a new document'))
-		self.Bind(wx.EVT_MENU, self.OnNew, self.newItem)
-		self.openItem = menu.Append(wx.ID_OPEN, _('&Open\tCtrl-O'), _('Open an existing file'))
-		self.Bind(wx.EVT_MENU, self.OnOpen, self.openItem)
-		menu.AppendSeparator()
-		export = wx.Menu()
-		menu.AppendMenu(wx.ID_ANY, _('Export to'), export)
-		htmlItem = export.Append(wx.ID_ANY, _('HTML file'), '')
-		self.Bind(wx.EVT_MENU, self.OnSaveAsHtml, htmlItem)
-		menu.AppendSeparator()
-		previewItem = menu.Append(wx.ID_PREVIEW, _('Print &Preview\tShift-Ctrl-P'), '')
-		self.Bind(wx.EVT_MENU, self.OnPreview, previewItem)
-		printItem = menu.Append(wx.ID_PRINT, _('&Print\tCtrl-P'), '')
-		self.Bind(wx.EVT_MENU, self.OnPrint, printItem)
-		menu.AppendSeparator()
-		exitItem = menu.Append(wx.ID_EXIT, _('&Quit Cellaret\tCtrl-Q'), _('Close window and exit program.'))
-		self.Bind(wx.EVT_MENU, self.OnExit, exitItem)
-		menuBar.Append(menu, _('&File'))
-
-		menu = wx.Menu()
-		self.editItem = menu.Append(wx.ID_EDIT, _('&Editor...\tCtrl-E'), _('Markdown text editor'))
-		self.Bind(wx.EVT_MENU, self.OnEdit, self.editItem)
-		menu.AppendSeparator()
-		selectAllItem = menu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
-		self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllItem)
-		copySelectedItem = menu.Append(wx.ID_COPY, _('&Copy selected\tCtrl-C'), '')
-		self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedItem)
-		menu.AppendSeparator()
-		preferencesItem = menu.Append(wx.ID_PREFERENCES, _('Preferences...'), '')
-		self.Bind(wx.EVT_MENU, self.OnPreferences, preferencesItem)
-		menuBar.Append(menu, _('E&dit'))
-
-		menu = wx.Menu()
-		refreshItem = menu.Append(wx.ID_REFRESH, _('Refresh\tF5'), '')
-		self.Bind(wx.EVT_MENU, self.OnRefresh, refreshItem)
-		menu.AppendSeparator()
-		fullscreenItem = menu.Append(wx.ID_ANY, _('Full Screen\tF11'), _('Toggles Full Screen Mode'), wx.ITEM_CHECK)
-		self.Bind(wx.EVT_MENU, self.OnFullScreen, fullscreenItem)
-		self.statusbarItem = menu.Append(wx.ID_ANY, _('Show Status &Bar\tCtrl-B'), '', wx.ITEM_CHECK)
-		menu.Check(self.statusbarItem.GetId(), True)
-		self.Bind(wx.EVT_MENU, self.OnStatusBar, self.statusbarItem)
-		menuBar.Append(menu, _('&View'))
-
-		menu = wx.Menu()
-		contentsItem = menu.Append(wx.ID_HELP, _('Contents...\tF1'), _('Help about this program'))
-		self.Bind(wx.EVT_MENU, self.OnContents, contentsItem)
-		aboutItem = menu.Append(wx.ID_ABOUT, _('About'), _('Information about this program'))
-		self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
-		menuBar.Append(menu, _('&Help'))
-
+		menuBar.Append(self.fileMenu, _('&File'))
+		menuBar.Append(self.editMenu, _('&Edit'))
+		menuBar.Append(self.viewMenu, _('&View'))
+		menuBar.Append(helpMenu, _('&Help'))
 		self.SetMenuBar(menuBar)
 
 		# Context Menu
-		self.popupmenu = wx.Menu()
-		refreshContextItem = self.popupmenu.Append(wx.ID_REFRESH, _('Refresh'), '')
-		self.Bind(wx.EVT_MENU, self.OnRefresh, refreshContextItem)
-		copySelectedContextItem = self.popupmenu.Append(wx.ID_COPY, _('Copy selected'), '')
-		self.Bind(wx.EVT_MENU, self.OnCopySelected, copySelectedContextItem)
-		self.popupmenu.AppendSeparator()
-		selectAllContextItem = self.popupmenu.Append(wx.ID_SELECTALL, _('Select All'), '')
-		self.Bind(wx.EVT_MENU, self.OnSelectAll, selectAllContextItem)
+		#==============
+		self.contextMenu.Append(wx.ID_REFRESH, _('Refresh'), '')
+		self.contextMenu.Append(wx.ID_COPY, _('Copy selection'), '')
+		self.contextMenu.AppendSeparator()
+		self.contextMenu.Append(wx.ID_SELECTALL, _('Select All'), '')
+
+		# Menu Event
+		#============
+		wx.EVT_MENU(self, wx.ID_NEW, self.OnNew)
+		wx.EVT_MENU(self, wx.ID_OPEN, self.OnOpen)
+		wx.EVT_MENU(self, ID_HTML, self.OnSaveAsHtml)
+		wx.EVT_MENU(self, wx.ID_PREVIEW, self.OnPreview)
+		wx.EVT_MENU(self, wx.ID_PRINT, self.OnPrint)
+		wx.EVT_MENU(self, wx.ID_EXIT, self.OnExit)
+		wx.EVT_MENU(self, wx.ID_EDIT, self.OnEdit)
+		wx.EVT_MENU(self, wx.ID_COPY, self.OnCopySelected)
+		wx.EVT_MENU(self, wx.ID_SELECTALL, self.OnSelectAll)
+		wx.EVT_MENU(self, wx.ID_PREFERENCES, self.OnPreferences)
+		wx.EVT_MENU(self, wx.ID_REFRESH, self.OnRefresh)
+		wx.EVT_MENU(self, ID_FULLSCREEN, self.OnFullScreen)
+		wx.EVT_MENU(self, self.ID_STATUSBAR, self.OnStatusBar)
+		wx.EVT_MENU(self, wx.ID_HELP, self.OnContents)
+		wx.EVT_MENU(self, wx.ID_ABOUT, self.OnAbout)
 
 		# Context Menu Event
-		self.cellaBrowser.Bind(wx.EVT_CONTEXT_MENU, self.OnShowPopup)
+		#====================
+		wx.EVT_CONTEXT_MENU(self.cellaBrowser, self.OnShowPopup)
 
 		# StatusBar for HtmlWindow
+		#==========================
 		self.statusbar = self.CreateStatusBar()
 		self.cellaBrowser.SetRelatedFrame(self, '') # Sets the frame in which page title will be displayed.
 		self.cellaBrowser.SetRelatedStatusBar(0) # After calling SetRelatedFrame, this sets statusbar slot where messages will be displayed.
 
 	# Toggle Full Screen
+	#====================
 	def OnFullScreen(self, event):
 		self.ShowFullScreen(not self.IsFullScreen(), wx.FULLSCREEN_NOCAPTION)
 
 	# Show Status Bar
+	#=================
 	def OnStatusBar(self, event):
-		if self.statusbarItem.IsChecked():
+		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
 			self.statusbar.Show()
 		else:
 			self.statusbar.Hide()
 
 	# Show Context Menu
+	#===================
 	def OnShowPopup(self, event):
 		pos = event.GetPosition()
 		pos = self.cellaBrowser.ScreenToClient(pos)
-		self.cellaBrowser.PopupMenu(self.popupmenu, pos)
+		self.cellaBrowser.PopupMenu(self.contextMenu, pos)
 
 	def OnOpen(self, event):
 		global MD_PATH_FILE
@@ -288,16 +299,16 @@ class MarkdownBrowser(wx.Frame):
 	# Disable menu items
 	#====================
 	def DisableMenuBrowser(self, event):
-		self.newItem.Enable(False) # Disable menu item New
-		self.openItem.Enable(False) # Disable menu item Open
-		self.editItem.Enable(False) # Disable menu item Editor
+		self.fileMenu.Enable(wx.ID_NEW, False) # Disable menu item New
+		self.fileMenu.Enable(wx.ID_OPEN, False) # Disable menu item Open
+		self.editMenu.Enable(wx.ID_EDIT, False) # Disable menu item Editor
 
 	# Enable menu items
 	#===================
 	def EnableMenuBrowser(self, event):
-		self.newItem.Enable(True) # Enable menu item New
-		self.openItem.Enable(True) # Enable menu item Open
-		self.editItem.Enable(True) # Enable menu item Editor
+		self.fileMenu.Enable(wx.ID_NEW, True) # Enable menu item New
+		self.fileMenu.Enable(wx.ID_OPEN, True) # Enable menu item Open
+		self.editMenu.Enable(wx.ID_EDIT, True) # Enable menu item Editor
 
 	# Open Properties frame
 	#=======================
@@ -427,84 +438,54 @@ class MarkdownEditor(wx.Frame):
 
 		self.toolbar = wx.ToolBar(self, wx.ID_ANY)
 
-		# Append to file
+		ID_NAMEDHYPERLINK = wx.NewId()
+		ID_HYPERLINK = wx.NewId()
+		ID_INSERTIMAGE = wx.NewId()
+
 		self.toolbar.AddSimpleTool(wx.ID_OPEN, wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN), _('Append to File'), '')
-		self.Bind(wx.EVT_TOOL, self.OnAppendToFile, id=wx.ID_OPEN)
-
-		# SAVE TO FILE editor's current text
 		self.toolbar.AddSimpleTool(wx.ID_SAVE, wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE), _('Save'), '')
-		self.toolbar.EnableTool(wx.ID_SAVE, False)
-		self.Bind(wx.EVT_TOOL, self.OnSaveFile, id=wx.ID_SAVE)
-
-		# SAVE TO FILE AS... editor's current text
 		self.toolbar.AddSimpleTool(wx.ID_SAVEAS, wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE_AS), _('Save as...'), '')
-		self.Bind(wx.EVT_TOOL, self.OnSaveAsFile, id=wx.ID_SAVEAS)
-
 		self.toolbar.AddSeparator()
-
-		# COPY
 		self.toolbar.AddSimpleTool(wx.ID_COPY, wx.ArtProvider.GetBitmap(wx.ART_COPY), _('Copy'), '')
-		self.Bind(wx.EVT_TOOL, self.OnCopy, id=wx.ID_COPY)
-
-		# CUT
 		self.toolbar.AddSimpleTool(wx.ID_CUT, wx.ArtProvider.GetBitmap(wx.ART_CUT), _('Cut'), '')
-		self.Bind(wx.EVT_TOOL, self.OnCut, id=wx.ID_CUT)
-
-		# PASTE any text previously copied text
 		self.toolbar.AddSimpleTool(wx.ID_PASTE, wx.ArtProvider.GetBitmap(wx.ART_PASTE), _('Paste'), '')
-		self.Bind(wx.EVT_TOOL, self.OnPaste, id=wx.ID_PASTE)
-
 		self.toolbar.AddSeparator()
-
-		# UNDO
 		self.toolbar.AddSimpleTool(wx.ID_UNDO, wx.ArtProvider.GetBitmap(wx.ART_UNDO), _('Undo'), '')
-		self.toolbar.EnableTool(wx.ID_UNDO, False)
-		self.Bind(wx.EVT_TOOL, self.OnUndo, id=wx.ID_UNDO)
-
-		# REDO
 		self.toolbar.AddSimpleTool(wx.ID_REDO, wx.ArtProvider.GetBitmap(wx.ART_REDO), _('Redo'), '')
-		self.toolbar.EnableTool(wx.ID_REDO, False)
-		self.Bind(wx.EVT_TOOL, self.OnRedo, id=wx.ID_REDO)
-
 		self.toolbar.AddSeparator()
-
-		# BOLD
 		self.toolbar.AddSimpleTool(wx.ID_BOLD, wx.Image('/usr/share/icons/gnome/16x16/actions/format-text-bold.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Bold'), '')
-		self.Bind(wx.EVT_TOOL, self.OnBold, id=wx.ID_BOLD)
-
-		# ITALIC
 		self.toolbar.AddSimpleTool(wx.ID_ITALIC, wx.Image('/usr/share/icons/gnome/16x16/actions/format-text-italic.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Italic'), '')
-		self.Bind(wx.EVT_TOOL, self.OnItalic, id=wx.ID_ITALIC)
-
 		self.toolbar.AddSeparator()
-
-		# Named Hyperlink
-		namedHyperlinkID = wx.NewId()
-		self.toolbar.AddSimpleTool(namedHyperlinkID, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Named Hyperlink'), '')
-		self.Bind(wx.EVT_TOOL, self.OnNamedHyperlink, id=namedHyperlinkID)
-
-		# Hyperlink
-		hyperlinkID = wx.NewId()
-		self.toolbar.AddSimpleTool(hyperlinkID, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Hyperlink'), '')
-		self.Bind(wx.EVT_TOOL, self.OnHyperlink, id=hyperlinkID)
-
-		# Insert Image
-		insertImageID = wx.NewId()
-		self.toolbar.AddSimpleTool(insertImageID, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-image.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Insert Image'), '')
-		self.Bind(wx.EVT_TOOL, self.OnInsertImage, id=insertImageID)
-
+		self.toolbar.AddSimpleTool(ID_NAMEDHYPERLINK, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Named Hyperlink'), '')
+		self.toolbar.AddSimpleTool(ID_HYPERLINK, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Hyperlink'), '')
+		self.toolbar.AddSimpleTool(ID_INSERTIMAGE, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-image.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Insert Image'), '')
 		self.toolbar.AddSeparator()
-
-		# CLOSE this frame.
 		self.toolbar.AddSimpleTool(wx.ID_CLOSE, wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK), _('Close Editor'), '')
-		self.Bind(wx.EVT_TOOL, self.OnCloseEditor, id=wx.ID_CLOSE)
-
-		# EXIT this app.
 		self.toolbar.AddSimpleTool(wx.ID_EXIT, wx.ArtProvider.GetBitmap(wx.ART_QUIT), _('Quit Cellaret'), '')
-		self.Bind(wx.EVT_TOOL, self.OnQuitApplication, id=wx.ID_EXIT)
+
+		self.toolbar.EnableTool(wx.ID_SAVE, False)
+		self.toolbar.EnableTool(wx.ID_UNDO, False)
+		self.toolbar.EnableTool(wx.ID_REDO, False)
+
+		# Toolbar Event
+		#===============
+		wx.EVT_TOOL(self, wx.ID_OPEN, self.OnAppendToFile)
+		wx.EVT_TOOL(self, wx.ID_SAVE, self.OnSaveFile)
+		wx.EVT_TOOL(self, wx.ID_SAVEAS, self.OnSaveAsFile)
+		wx.EVT_TOOL(self, wx.ID_COPY, self.OnCopy)
+		wx.EVT_TOOL(self, wx.ID_CUT, self.OnCut)
+		wx.EVT_TOOL(self, wx.ID_PASTE, self.OnPaste)
+		wx.EVT_TOOL(self, wx.ID_UNDO, self.OnUndo)
+		wx.EVT_TOOL(self, wx.ID_REDO, self.OnRedo)
+		wx.EVT_TOOL(self, wx.ID_BOLD, self.OnBold)
+		wx.EVT_TOOL(self, wx.ID_ITALIC, self.OnItalic)
+		wx.EVT_TOOL(self, ID_NAMEDHYPERLINK, self.OnNamedHyperlink)
+		wx.EVT_TOOL(self, ID_HYPERLINK, self.OnHyperlink)
+		wx.EVT_TOOL(self, ID_INSERTIMAGE, self.OnInsertImage)
+		wx.EVT_TOOL(self, wx.ID_CLOSE, self.OnCloseEditor)
+		wx.EVT_TOOL(self, wx.ID_EXIT, self.OnQuitApplication)
 
 		self.toolbar.Realize()
-
 		return self.toolbar
 
 	def IfTextChanged(self, event):

@@ -43,10 +43,11 @@ class cellaHtmlWindow(html.HtmlWindow):
 		html.HtmlWindow.SelectAll(self)
 
 	def SelectionToClipboard(self):
-		wx.TheClipboard.Open()
-		wx.TheClipboard.Clear()
-		wx.TheClipboard.SetData(wx.TextDataObject(self.SelectionToText()))
-		wx.TheClipboard.Close()
+		textSelection = self.SelectionToText()
+		if wx.TheClipboard.Open():
+			wx.TheClipboard.Clear()
+			wx.TheClipboard.SetData(wx.TextDataObject(textSelection))
+			wx.TheClipboard.Close()
 
 	def OnLinkClicked(self, linkinfo):
 		if WEBBROWSER_OPEN_LINK:
