@@ -391,8 +391,6 @@ class MarkdownEditor(wx.Frame):
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.OnCloseEditor)
 
-		self.iconToolbar = self.CreateIconToolbar()
-
 		# EDITOR STATE VARS
 		#==================
 		self.markdownTextIsModified = False # file is changed (Modified)
@@ -404,8 +402,13 @@ class MarkdownEditor(wx.Frame):
 		#===============================
 		self.cellaEditor = cellaStyledTextCtrl(self) # Text editor subclass
 		self.cellaEditor.SetBackgroundColour(wx.WHITE)
-		self.cellaEditor.WrapMode = True # Scintilla Wrap mode
-#		self.cellaEditor.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, "size:%d" % EDITOR_FONT_SIZE) # Style for the default text
+#		self.cellaEditor.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, 'size:%d' % EDITOR_FONT_SIZE) # Style for the default text
+
+		self.cellaEditor.SetWrapMode(True) # Scintilla Wrap mode
+		self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS) # Scintilla Show White Space
+		self.cellaEditor.SetWhitespaceForeground(True, wx.Colour(180, 180, 180)) # Scintilla White Space Colour
+		self.cellaEditor.SetIndentationGuides(False) # Scintilla Show Indentation Guides
+		self.cellaEditor.SetViewEOL(False) # Scintilla Show Line Endings
 
 		if not markdownNew:
 			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
@@ -419,28 +422,162 @@ class MarkdownEditor(wx.Frame):
 			self.imagePathFile = None
 
 		self.markdownTextIsModified = False # Set False, because the text was changed.
+
 		self.statusbar = self.CreateStatusBar()
 
 		self.cellaEditor.Bind(wx.stc.EVT_STC_MODIFIED, self.IfTextChanged)
 		self.cellaEditor.Bind(wx.EVT_KEY_DOWN, self.IfKeyDown)
 #		self.Bind(wx.EVT_UPDATE_UI, self.IfKeyDown, self.cellaEditor)
 
-		# Positioning iconToolbar & Scintilla
-		#=====================================
-		edPanelSizer = wx.BoxSizer(wx.VERTICAL)
-		edPanelSizer.Add(self.iconToolbar, proportion=0, flag=wx.EXPAND)
-		edPanelSizer.Add(self.cellaEditor, proportion=1, flag=wx.EXPAND)
-		self.SetSizer(edPanelSizer) # Assigns Sizer for container management.
+		# Menu menuBar
+		#==============
+		self.fileMenu = wx.Menu()
+		self.editMenu = wx.Menu()
+		self.viewMenu = wx.Menu()
+		self.editorSubMenu = wx.Menu()
+
+		self.ID_FULLSCREEN = wx.NewId()
+		self.ID_TOOLBAR = wx.NewId()
+		self.ID_STATUSBAR = wx.NewId()
+		self.ID_NAMEDHYPERLINK = wx.NewId()
+		self.ID_HYPERLINK = wx.NewId()
+		self.ID_INSERTIMAGE = wx.NewId()
+		self.ID_WRAPMODE = wx.NewId()
+		self.ID_WHITESPACE = wx.NewId()
+		self.ID_INDENTATIONGUIDES = wx.NewId()
+		self.ID_LINEENDINGS = wx.NewId()
+
+		self.fileMenu.Append(wx.ID_OPEN, _('App&end\tCtrl-O'), _('Append to File'))
+		self.fileMenu.Append(wx.ID_SAVE, _('&Save\tCtrl-S'), _('Save File'))
+		self.fileMenu.Append(wx.ID_SAVEAS, _('Save &as...'), _('Save as new File'))
+		self.fileMenu.AppendSeparator()
+		self.fileMenu.Append(wx.ID_CLOSE, _('&Close Editor\tCtrl-W'), _('Close window.'))
+		self.fileMenu.Append(wx.ID_EXIT, _('&Quit Cellaret\tCtrl-Q'), _('Close window and exit program.'))
+
+		self.editMenu.Append(wx.ID_UNDO, _('&Undo\tCtrl-Z'), '')
+		self.editMenu.Append(wx.ID_REDO, _('&Redo\tCtrl-Y'), '')
+		self.editMenu.AppendSeparator()
+		self.editMenu.Append(wx.ID_COPY, _('&Copy\tCtrl-C'), '')
+		self.editMenu.Append(wx.ID_CUT, _('C&ut\tCtrl-X'), '')
+		self.editMenu.Append(wx.ID_PASTE, _('&Paste\tCtrl-V'), '')
+#		self.editMenu.Append(wx.ID_DELETE, _('Delete'), '')
+#		self.editMenu.AppendSeparator()
+#		self.editMenu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
+
+		self.viewMenu.AppendMenu(wx.ID_ANY, _('&Editor'), self.editorSubMenu)
+		self.editorSubMenu.Append(self.ID_WRAPMODE, _('Line &Wrapping'), _('Set Wrap Mode'), wx.ITEM_CHECK)
+		self.editorSubMenu.Append(self.ID_WHITESPACE, _('Show White &Space'), _('Show White Space'), wx.ITEM_CHECK)
+		self.editorSubMenu.Append(self.ID_INDENTATIONGUIDES, _('Show &Indentation Guides'), _('Show Indentation Guides'), wx.ITEM_CHECK)
+		self.editorSubMenu.Append(self.ID_LINEENDINGS, _('Show Line &Endings'), _('Show Line Endings'), wx.ITEM_CHECK)
+		self.viewMenu.AppendSeparator()
+		self.viewMenu.Append(self.ID_FULLSCREEN, _('F&ull Screen\tF11'), _('Toggles Full Screen Mode'), wx.ITEM_CHECK)
+		self.viewMenu.Append(self.ID_TOOLBAR, _('&Tool Bar'), _('Show Tool Bar'), wx.ITEM_CHECK)
+		self.viewMenu.Append(self.ID_STATUSBAR, _('Status &Bar\tCtrl-B'), _('Show Status Bar'), wx.ITEM_CHECK)
+
+		self.fileMenu.Enable(wx.ID_SAVE, False) # Disable menu item Save
+		self.editMenu.Enable(wx.ID_UNDO, False) # Disable menu item Undo
+		self.editMenu.Enable(wx.ID_REDO, False) # Disable menu item Redo
+
+		self.editorSubMenu.Check(self.ID_WRAPMODE, True)
+		self.editorSubMenu.Check(self.ID_WHITESPACE, True)
+		self.editorSubMenu.Check(self.ID_INDENTATIONGUIDES, False)
+		self.editorSubMenu.Check(self.ID_LINEENDINGS, False)
+		self.viewMenu.Check(self.ID_TOOLBAR, True)
+		self.viewMenu.Check(self.ID_STATUSBAR, True)
+
+		menuBar = wx.MenuBar()
+		menuBar.Append(self.fileMenu, _('&File'))
+		menuBar.Append(self.editMenu, _('&Edit'))
+		menuBar.Append(self.viewMenu, _('&View'))
+		self.SetMenuBar(menuBar)
+
+		self.iconToolbar = self.CreateIconToolbar()
+#		self.SetToolBar(self.iconToolbar)
+
+		# Menu & Toolbar Event
+		#======================
+		wx.EVT_TOOL(self, wx.ID_OPEN, self.OnAppendToFile)
+		wx.EVT_TOOL(self, wx.ID_SAVE, self.OnSaveFile)
+		wx.EVT_TOOL(self, wx.ID_SAVEAS, self.OnSaveAsFile)
+		wx.EVT_TOOL(self, wx.ID_COPY, self.OnCopy)
+		wx.EVT_TOOL(self, wx.ID_CUT, self.OnCut)
+		wx.EVT_TOOL(self, wx.ID_PASTE, self.OnPaste)
+#		wx.EVT_TOOL(self, wx.ID_DELETE, self.OnDelete)
+		wx.EVT_TOOL(self, wx.ID_UNDO, self.OnUndo)
+		wx.EVT_TOOL(self, wx.ID_REDO, self.OnRedo)
+		wx.EVT_TOOL(self, wx.ID_BOLD, self.OnBold)
+		wx.EVT_TOOL(self, wx.ID_ITALIC, self.OnItalic)
+		wx.EVT_TOOL(self, self.ID_NAMEDHYPERLINK, self.OnNamedHyperlink)
+		wx.EVT_TOOL(self, self.ID_HYPERLINK, self.OnHyperlink)
+		wx.EVT_TOOL(self, self.ID_INSERTIMAGE, self.OnInsertImage)
+		wx.EVT_MENU(self, self.ID_WRAPMODE, self.OnWrapMode)
+		wx.EVT_MENU(self, self.ID_WHITESPACE, self.OnWhiteSpace)
+		wx.EVT_MENU(self, self.ID_INDENTATIONGUIDES, self.OnIndentationGuides)
+		wx.EVT_MENU(self, self.ID_LINEENDINGS, self.OnLineEndings)
+		wx.EVT_MENU(self, self.ID_FULLSCREEN, self.OnFullScreen)
+		wx.EVT_MENU(self, self.ID_TOOLBAR, self.OnToolBar)
+		wx.EVT_MENU(self, self.ID_STATUSBAR, self.OnStatusBar)
+		wx.EVT_TOOL(self, wx.ID_CLOSE, self.OnCloseEditor)
+		wx.EVT_TOOL(self, wx.ID_EXIT, self.OnQuitApplication)
+
+	# Set Wrap Mode
+	#===============
+	def OnWrapMode(self, event):
+		if self.editorSubMenu.IsChecked(self.ID_WRAPMODE):
+			self.cellaEditor.SetWrapMode(True)
+		else:
+			self.cellaEditor.SetWrapMode(False)
+
+	# Show White Space
+	#==================
+	def OnWhiteSpace(self, event):
+		if self.editorSubMenu.IsChecked(self.ID_WHITESPACE):
+			self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS)
+		else:
+			self.cellaEditor.SetViewWhiteSpace(False)
+
+	# Show Indentation Guides
+	#=========================
+	def OnIndentationGuides(self, event):
+		if self.editorSubMenu.IsChecked(self.ID_INDENTATIONGUIDES):
+			self.cellaEditor.SetIndentationGuides(True)
+		else:
+			self.cellaEditor.SetIndentationGuides(False)
+
+	# Show Line Endings
+	#===================
+	def OnLineEndings(self, event):
+		if self.editorSubMenu.IsChecked(self.ID_LINEENDINGS):
+			self.cellaEditor.SetViewEOL(True)
+		else:
+			self.cellaEditor.SetViewEOL(False)
+
+	# Toggle Full Screen
+	#====================
+	def OnFullScreen(self, event):
+		self.ShowFullScreen(not self.IsFullScreen(), wx.FULLSCREEN_NOCAPTION)
+
+	# Show Tool Bar
+	#===============
+	def OnToolBar(self, event):
+		if self.viewMenu.IsChecked(self.ID_TOOLBAR):
+			self.iconToolbar = self.CreateIconToolbar()
+		else:
+			self.iconToolbar.Destroy()
+
+	# Show Status Bar
+	#=================
+	def OnStatusBar(self, event):
+		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
+			self.statusbar.Show()
+		else:
+			self.statusbar.Hide()
 
 	# Toolbar iconToolbar
-	#====================
+	#=====================
 	def CreateIconToolbar(self):
 
-		self.toolbar = wx.ToolBar(self, wx.ID_ANY)
-
-		ID_NAMEDHYPERLINK = wx.NewId()
-		ID_HYPERLINK = wx.NewId()
-		ID_INSERTIMAGE = wx.NewId()
+		self.toolbar = self.CreateToolBar()
 
 		self.toolbar.AddSimpleTool(wx.ID_OPEN, wx.ArtProvider.GetBitmap(wx.ART_FILE_OPEN), _('Append to File'), '')
 		self.toolbar.AddSimpleTool(wx.ID_SAVE, wx.ArtProvider.GetBitmap(wx.ART_FILE_SAVE), _('Save'), '')
@@ -456,9 +593,9 @@ class MarkdownEditor(wx.Frame):
 		self.toolbar.AddSimpleTool(wx.ID_BOLD, wx.Image('/usr/share/icons/gnome/16x16/actions/format-text-bold.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Bold'), '')
 		self.toolbar.AddSimpleTool(wx.ID_ITALIC, wx.Image('/usr/share/icons/gnome/16x16/actions/format-text-italic.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Italic'), '')
 		self.toolbar.AddSeparator()
-		self.toolbar.AddSimpleTool(ID_NAMEDHYPERLINK, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Named Hyperlink'), '')
-		self.toolbar.AddSimpleTool(ID_HYPERLINK, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Hyperlink'), '')
-		self.toolbar.AddSimpleTool(ID_INSERTIMAGE, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-image.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Insert Image'), '')
+		self.toolbar.AddSimpleTool(self.ID_NAMEDHYPERLINK, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Named Hyperlink'), '')
+		self.toolbar.AddSimpleTool(self.ID_HYPERLINK, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-link.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Hyperlink'), '')
+		self.toolbar.AddSimpleTool(self.ID_INSERTIMAGE, wx.Image('/usr/share/icons/gnome/16x16/actions/insert-image.png', wx.BITMAP_TYPE_PNG).ConvertToBitmap(), _('Insert Image'), '')
 		self.toolbar.AddSeparator()
 		self.toolbar.AddSimpleTool(wx.ID_CLOSE, wx.ArtProvider.GetBitmap(wx.ART_CROSS_MARK), _('Close Editor'), '')
 		self.toolbar.AddSimpleTool(wx.ID_EXIT, wx.ArtProvider.GetBitmap(wx.ART_QUIT), _('Quit Cellaret'), '')
@@ -467,24 +604,6 @@ class MarkdownEditor(wx.Frame):
 		self.toolbar.EnableTool(wx.ID_UNDO, False)
 		self.toolbar.EnableTool(wx.ID_REDO, False)
 
-		# Toolbar Event
-		#===============
-		wx.EVT_TOOL(self, wx.ID_OPEN, self.OnAppendToFile)
-		wx.EVT_TOOL(self, wx.ID_SAVE, self.OnSaveFile)
-		wx.EVT_TOOL(self, wx.ID_SAVEAS, self.OnSaveAsFile)
-		wx.EVT_TOOL(self, wx.ID_COPY, self.OnCopy)
-		wx.EVT_TOOL(self, wx.ID_CUT, self.OnCut)
-		wx.EVT_TOOL(self, wx.ID_PASTE, self.OnPaste)
-		wx.EVT_TOOL(self, wx.ID_UNDO, self.OnUndo)
-		wx.EVT_TOOL(self, wx.ID_REDO, self.OnRedo)
-		wx.EVT_TOOL(self, wx.ID_BOLD, self.OnBold)
-		wx.EVT_TOOL(self, wx.ID_ITALIC, self.OnItalic)
-		wx.EVT_TOOL(self, ID_NAMEDHYPERLINK, self.OnNamedHyperlink)
-		wx.EVT_TOOL(self, ID_HYPERLINK, self.OnHyperlink)
-		wx.EVT_TOOL(self, ID_INSERTIMAGE, self.OnInsertImage)
-		wx.EVT_TOOL(self, wx.ID_CLOSE, self.OnCloseEditor)
-		wx.EVT_TOOL(self, wx.ID_EXIT, self.OnQuitApplication)
-
 		self.toolbar.Realize()
 		return self.toolbar
 
@@ -492,8 +611,11 @@ class MarkdownEditor(wx.Frame):
 		if not markdownNew:
 			self.SetTitle('*' + MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 		self.markdownTextIsModified = True
-		self.toolbar.EnableTool(wx.ID_SAVE, True) # Save highlight
-		self.toolbar.EnableTool(wx.ID_UNDO, True) # Undo highlight
+		self.fileMenu.Enable(wx.ID_SAVE, True) # Enable menu item Save
+		self.editMenu.Enable(wx.ID_UNDO, True) # Enable menu item Undo
+		if self.iconToolbar:
+			self.toolbar.EnableTool(wx.ID_SAVE, True) # Enable toolbar item Save
+			self.toolbar.EnableTool(wx.ID_UNDO, True) # Enable toolbar item Undo
 		event.Skip()
 
 	def IfKeyDown(self, event):
@@ -542,7 +664,9 @@ class MarkdownEditor(wx.Frame):
 
 				self.parent.OnRefresh(self) # Refresh browser (parent wx.Frame)
 				self.parent.SetTitlePlus(self) # Setting "+" on Title browser (parent wx.Frame)
-				self.toolbar.EnableTool(wx.ID_SAVE, False)
+				self.fileMenu.Enable(wx.ID_SAVE, False)
+				if self.iconToolbar:
+					self.toolbar.EnableTool(wx.ID_SAVE, False)
 
 			except IOError, error:
 				dlg = wx.MessageDialog(self, _('Error saving file\n') + str(error))
@@ -586,7 +710,9 @@ class MarkdownEditor(wx.Frame):
 				self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 
 				self.parent.OnRefresh(self) # Refresh browser (parent wx.Frame)
-				self.toolbar.EnableTool(wx.ID_SAVE, False)
+				self.fileMenu.Enable(wx.ID_SAVE, False)
+				if self.iconToolbar:
+					self.toolbar.EnableTool(wx.ID_SAVE, False)
 
 			except IOError, error:
 				dlg = wx.MessageDialog(self, _('Error saving file\n') + str(error))
@@ -607,16 +733,24 @@ class MarkdownEditor(wx.Frame):
 	def OnUndo(self, event):
 		if self.cellaEditor.CanUndo():
 			self.cellaEditor.Undo()
-			self.toolbar.EnableTool(wx.ID_REDO, True)
+			self.editMenu.Enable(wx.ID_REDO, True)
+			if self.iconToolbar:
+				self.toolbar.EnableTool(wx.ID_REDO, True)
 		else:
-			self.toolbar.EnableTool(wx.ID_UNDO, False)
+			self.editMenu.Enable(wx.ID_UNDO, False)
+			if self.iconToolbar:
+				self.toolbar.EnableTool(wx.ID_UNDO, False)
 
 	def OnRedo(self, event):
 		if self.cellaEditor.CanRedo():
 			self.cellaEditor.Redo()
-			self.toolbar.EnableTool(wx.ID_UNDO, True)
+			self.editMenu.Enable(wx.ID_UNDO, True)
+			if self.iconToolbar:
+				self.toolbar.EnableTool(wx.ID_UNDO, True)
 		else:
-			self.toolbar.EnableTool(wx.ID_REDO, False)
+			self.editMenu.Enable(wx.ID_REDO, False)
+			if self.iconToolbar:
+				self.toolbar.EnableTool(wx.ID_REDO, False)
 
 	def OnBold(self, event):
 		self.InsertTags('**', '**')
