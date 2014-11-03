@@ -32,7 +32,7 @@ from environment import *
 
 # HTML Window subclass
 #==============================================================================
-class cellaHtmlWindow(html.HtmlWindow):
+class CellaHtmlWindow(html.HtmlWindow):
 	def __init__(self, parent):
 		html.HtmlWindow.__init__(self, parent, style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER)
 		if "gtk2" in wx.PlatformInfo:
@@ -69,7 +69,7 @@ class cellaHtmlWindow(html.HtmlWindow):
 
 # Printer subclass
 #==============================================================================
-class cellaPrinter(HtmlEasyPrinting):
+class CellaPrinter(HtmlEasyPrinting):
 
 	def __init__(self):
 		HtmlEasyPrinting.__init__(self)

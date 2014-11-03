@@ -31,7 +31,7 @@ from environment import *
 
 # Text editor subclass Scintilla
 #==============================================================================
-class cellaStyledTextCtrl(wx.stc.StyledTextCtrl):
+class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 	def __init__(self, parent):
 		wx.stc.StyledTextCtrl.__init__(self, parent, style = 0)
 
@@ -111,6 +111,7 @@ class cellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 
 		# Other useful attributes for the editing window
 		#================================================
+		self.SetWhitespaceForeground(True, wx.Colour(180, 180, 180)) # Scintilla White Space Colour
 		self.SetMargins(2, 2) # Set left and right margin widths in pixels
 		self.SetMarginType(1, wx.stc.STC_MARGIN_NUMBER) # Margin #1 - Set up the numbers in the margin
 		self.SetMarginMask(1, 0) # only show line numbers

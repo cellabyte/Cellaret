@@ -37,11 +37,13 @@ import codecs
 import markdown
 import wx.html as html
 import gettext
-from browser import cellaHtmlWindow, cellaPrinter
-from editor import cellaStyledTextCtrl
+from browser import CellaHtmlWindow, CellaPrinter
+from editor import CellaStyledTextCtrl
+from dater import CellaCalendar
 from preferences import CellaretPreferences
 from environment import *
 
+config = wx.Config('cellabyte/cellaret.conf')
 gettext.install('cellaret', os.path.join(EXEC_PATH, 'translations'), unicode=True)
 
 # Markdown Browser (parent wx.Frame)
@@ -50,7 +52,7 @@ class MarkdownBrowser(wx.Frame):
 
 	def __init__(self, title):
 		wx.Frame.__init__(self, None, size = (BROWSER_WIDTH, BROWSER_HEIGHT), title = title)
-		favicon = Cellaret_24.GetIcon()
+		favicon = pngCellaret_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.OnExit)
@@ -61,7 +63,7 @@ class MarkdownBrowser(wx.Frame):
 
 		# Browser cellaBrowser
 		#======================
-		self.cellaBrowser = cellaHtmlWindow(self) # HTML Window subclass
+		self.cellaBrowser = CellaHtmlWindow(self) # HTML Window subclass
 		self.Show(True)
 
 		if MD_FILE_ARGV:
@@ -113,7 +115,7 @@ class MarkdownBrowser(wx.Frame):
 		helpMenu.Append(wx.ID_HELP, _('&Contents...\tF1'), _('Help about this program'))
 		helpMenu.Append(wx.ID_ABOUT, _('&About'), _('Information about this program'))
 
-		self.viewMenu.Check(self.ID_STATUSBAR, True)
+		self.viewMenu.Check(self.ID_STATUSBAR, BROWSER_STATUSBAR)
 
 		menuBar = wx.MenuBar()
 		menuBar.Append(self.fileMenu, _('&File'))
@@ -156,6 +158,8 @@ class MarkdownBrowser(wx.Frame):
 		self.statusbar = self.CreateStatusBar()
 		self.cellaBrowser.SetRelatedFrame(self, '') # Sets the frame in which page title will be displayed.
 		self.cellaBrowser.SetRelatedStatusBar(0) # After calling SetRelatedFrame, this sets statusbar slot where messages will be displayed.
+		if not BROWSER_STATUSBAR:
+			self.statusbar.Hide()
 
 	# Toggle Full Screen
 	#====================
@@ -165,10 +169,17 @@ class MarkdownBrowser(wx.Frame):
 	# Show Status Bar
 	#=================
 	def OnStatusBar(self, event):
+		global BROWSER_STATUSBAR
+		config.SetPath('Browser')
 		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
 			self.statusbar.Show()
+			config.WriteInt('show_statusbar', True)
+			BROWSER_STATUSBAR = True
 		else:
 			self.statusbar.Hide()
+			config.WriteInt('show_statusbar', False)
+			BROWSER_STATUSBAR = False
+		config.SetPath('')
 
 	# Show Context Menu
 	#===================
@@ -268,12 +279,12 @@ class MarkdownBrowser(wx.Frame):
 	# Printer dialog
 	#================
 	def OnPreview(self, event):
-		printer = cellaPrinter() # Printer subclass
+		printer = CellaPrinter() # Printer subclass
 		printer.PreviewText(MD_PRINT_DATA, MD_PATH_FILE)
 		return True
 
 	def OnPrint(self, event):
-		printer = cellaPrinter() # Printer subclass
+		printer = CellaPrinter() # Printer subclass
 		printer.Print(MD_PRINT_DATA, MD_PATH_FILE)
 		return True
 
@@ -327,7 +338,7 @@ class MarkdownBrowser(wx.Frame):
 	#==============
 	def OnAbout(self, event):
 		info = wx.AboutDialogInfo()
-		getCellaret_32Icon = Cellaret_32.GetIcon()
+		getCellaret_32Icon = pngCellaret_32.GetIcon()
 
 		info.SetIcon(getCellaret_32Icon)
 		info.SetName('Cellaret')
@@ -357,7 +368,7 @@ class MarkdownHelp(wx.Frame):
 
 	def __init__(self, parent):
 		wx.Frame.__init__(self, None, size = (800, 600), title=self.title)
-		favicon = Cellaret_24.GetIcon()
+		favicon = pngCellaret_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 
@@ -386,7 +397,7 @@ class MarkdownEditor(wx.Frame):
 	def __init__(self, parent):
 		wx.Frame.__init__(self, None, size = (EDITOR_WIDTH, EDITOR_HEIGHT), title = self.title)
 		self.parent = parent
-		favicon = Cellaret_24.GetIcon()
+		favicon = pngCellaret_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.OnCloseEditor)
@@ -400,15 +411,17 @@ class MarkdownEditor(wx.Frame):
 
 		# Editor cellaEditor (Scintilla)
 		#===============================
-		self.cellaEditor = cellaStyledTextCtrl(self) # Text editor subclass
+		self.cellaEditor = CellaStyledTextCtrl(self) # Text editor subclass
 		self.cellaEditor.SetBackgroundColour(wx.WHITE)
 #		self.cellaEditor.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, 'size:%d' % EDITOR_FONT_SIZE) # Style for the default text
 
-		self.cellaEditor.SetWrapMode(True) # Scintilla Wrap mode
-		self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS) # Scintilla Show White Space
-		self.cellaEditor.SetWhitespaceForeground(True, wx.Colour(180, 180, 180)) # Scintilla White Space Colour
-		self.cellaEditor.SetIndentationGuides(False) # Scintilla Show Indentation Guides
-		self.cellaEditor.SetViewEOL(False) # Scintilla Show Line Endings
+		self.cellaEditor.SetWrapMode(WRAP_MODE) # Scintilla Wrap mode
+		if WHITE_SPACE:
+			self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS) # Scintilla Show White Space
+		else:
+			self.cellaEditor.SetViewWhiteSpace(False) # Scintilla Hide White Space
+		self.cellaEditor.SetIndentationGuides(INDENTATION_GUIDES) # Scintilla Show Indentation Guides
+		self.cellaEditor.SetViewEOL(LINE_ENDINGS) # Scintilla Show Line Endings
 
 		if not markdownNew:
 			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
@@ -424,6 +437,8 @@ class MarkdownEditor(wx.Frame):
 		self.markdownTextIsModified = False # Set False, because the text was changed.
 
 		self.statusbar = self.CreateStatusBar()
+		if not EDITOR_STATUSBAR:
+			self.statusbar.Hide()
 
 		self.cellaEditor.Bind(wx.stc.EVT_STC_MODIFIED, self.IfTextChanged)
 		self.cellaEditor.Bind(wx.EVT_KEY_DOWN, self.IfKeyDown)
@@ -436,6 +451,8 @@ class MarkdownEditor(wx.Frame):
 		self.viewMenu = wx.Menu()
 		self.editorSubMenu = wx.Menu()
 
+		self.ID_CUSTOMDATE = wx.NewId()
+		self.ID_DATETIME = wx.NewId()
 		self.ID_FULLSCREEN = wx.NewId()
 		self.ID_TOOLBAR = wx.NewId()
 		self.ID_STATUSBAR = wx.NewId()
@@ -460,9 +477,12 @@ class MarkdownEditor(wx.Frame):
 		self.editMenu.Append(wx.ID_COPY, _('&Copy\tCtrl-C'), '')
 		self.editMenu.Append(wx.ID_CUT, _('C&ut\tCtrl-X'), '')
 		self.editMenu.Append(wx.ID_PASTE, _('&Paste\tCtrl-V'), '')
-#		self.editMenu.Append(wx.ID_DELETE, _('Delete'), '')
-#		self.editMenu.AppendSeparator()
-#		self.editMenu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
+		self.editMenu.Append(wx.ID_DELETE, _('&Delete'), '')
+		self.editMenu.AppendSeparator()
+		self.editMenu.Append(wx.ID_SELECTALL, _('Select &All\tCtrl-A'), '')
+		self.editMenu.AppendSeparator()
+		self.editMenu.Append(self.ID_CUSTOMDATE, _('&Insert Custom Date...'), '')
+		self.editMenu.Append(self.ID_DATETIME, _('In&sert Date and Time'), '')
 
 		self.viewMenu.AppendMenu(wx.ID_ANY, _('&Editor'), self.editorSubMenu)
 		self.editorSubMenu.Append(self.ID_WRAPMODE, _('Line &Wrapping'), _('Set Wrap Mode'), wx.ITEM_CHECK)
@@ -478,12 +498,12 @@ class MarkdownEditor(wx.Frame):
 		self.editMenu.Enable(wx.ID_UNDO, False) # Disable menu item Undo
 		self.editMenu.Enable(wx.ID_REDO, False) # Disable menu item Redo
 
-		self.editorSubMenu.Check(self.ID_WRAPMODE, True)
-		self.editorSubMenu.Check(self.ID_WHITESPACE, True)
-		self.editorSubMenu.Check(self.ID_INDENTATIONGUIDES, False)
-		self.editorSubMenu.Check(self.ID_LINEENDINGS, False)
-		self.viewMenu.Check(self.ID_TOOLBAR, True)
-		self.viewMenu.Check(self.ID_STATUSBAR, True)
+		self.editorSubMenu.Check(self.ID_WRAPMODE, WRAP_MODE)
+		self.editorSubMenu.Check(self.ID_WHITESPACE, WHITE_SPACE)
+		self.editorSubMenu.Check(self.ID_INDENTATIONGUIDES, INDENTATION_GUIDES)
+		self.editorSubMenu.Check(self.ID_LINEENDINGS, LINE_ENDINGS)
+		self.viewMenu.Check(self.ID_TOOLBAR, EDITOR_TOOLBAR)
+		self.viewMenu.Check(self.ID_STATUSBAR, EDITOR_STATUSBAR)
 
 		menuBar = wx.MenuBar()
 		menuBar.Append(self.fileMenu, _('&File'))
@@ -491,8 +511,9 @@ class MarkdownEditor(wx.Frame):
 		menuBar.Append(self.viewMenu, _('&View'))
 		self.SetMenuBar(menuBar)
 
-		self.iconToolbar = self.CreateIconToolbar()
-#		self.SetToolBar(self.iconToolbar)
+		if EDITOR_TOOLBAR:
+			self.iconToolbar = self.CreateIconToolbar()
+#			self.SetToolBar(self.iconToolbar)
 
 		# Menu & Toolbar Event
 		#======================
@@ -502,11 +523,14 @@ class MarkdownEditor(wx.Frame):
 		wx.EVT_TOOL(self, wx.ID_COPY, self.OnCopy)
 		wx.EVT_TOOL(self, wx.ID_CUT, self.OnCut)
 		wx.EVT_TOOL(self, wx.ID_PASTE, self.OnPaste)
-#		wx.EVT_TOOL(self, wx.ID_DELETE, self.OnDelete)
+		wx.EVT_TOOL(self, wx.ID_DELETE, self.OnDelete)
+		wx.EVT_TOOL(self, wx.ID_SELECTALL, self.OnSelectAll)
 		wx.EVT_TOOL(self, wx.ID_UNDO, self.OnUndo)
 		wx.EVT_TOOL(self, wx.ID_REDO, self.OnRedo)
 		wx.EVT_TOOL(self, wx.ID_BOLD, self.OnBold)
 		wx.EVT_TOOL(self, wx.ID_ITALIC, self.OnItalic)
+		wx.EVT_MENU(self, self.ID_CUSTOMDATE, self.OnCalendar)
+		wx.EVT_MENU(self, self.ID_DATETIME, self.OnDateTime)
 		wx.EVT_TOOL(self, self.ID_NAMEDHYPERLINK, self.OnNamedHyperlink)
 		wx.EVT_TOOL(self, self.ID_HYPERLINK, self.OnHyperlink)
 		wx.EVT_TOOL(self, self.ID_INSERTIMAGE, self.OnInsertImage)
@@ -519,59 +543,6 @@ class MarkdownEditor(wx.Frame):
 		wx.EVT_MENU(self, self.ID_STATUSBAR, self.OnStatusBar)
 		wx.EVT_TOOL(self, wx.ID_CLOSE, self.OnCloseEditor)
 		wx.EVT_TOOL(self, wx.ID_EXIT, self.OnQuitApplication)
-
-	# Set Wrap Mode
-	#===============
-	def OnWrapMode(self, event):
-		if self.editorSubMenu.IsChecked(self.ID_WRAPMODE):
-			self.cellaEditor.SetWrapMode(True)
-		else:
-			self.cellaEditor.SetWrapMode(False)
-
-	# Show White Space
-	#==================
-	def OnWhiteSpace(self, event):
-		if self.editorSubMenu.IsChecked(self.ID_WHITESPACE):
-			self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS)
-		else:
-			self.cellaEditor.SetViewWhiteSpace(False)
-
-	# Show Indentation Guides
-	#=========================
-	def OnIndentationGuides(self, event):
-		if self.editorSubMenu.IsChecked(self.ID_INDENTATIONGUIDES):
-			self.cellaEditor.SetIndentationGuides(True)
-		else:
-			self.cellaEditor.SetIndentationGuides(False)
-
-	# Show Line Endings
-	#===================
-	def OnLineEndings(self, event):
-		if self.editorSubMenu.IsChecked(self.ID_LINEENDINGS):
-			self.cellaEditor.SetViewEOL(True)
-		else:
-			self.cellaEditor.SetViewEOL(False)
-
-	# Toggle Full Screen
-	#====================
-	def OnFullScreen(self, event):
-		self.ShowFullScreen(not self.IsFullScreen(), wx.FULLSCREEN_NOCAPTION)
-
-	# Show Tool Bar
-	#===============
-	def OnToolBar(self, event):
-		if self.viewMenu.IsChecked(self.ID_TOOLBAR):
-			self.iconToolbar = self.CreateIconToolbar()
-		else:
-			self.iconToolbar.Destroy()
-
-	# Show Status Bar
-	#=================
-	def OnStatusBar(self, event):
-		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
-			self.statusbar.Show()
-		else:
-			self.statusbar.Hide()
 
 	# Toolbar iconToolbar
 	#=====================
@@ -607,6 +578,124 @@ class MarkdownEditor(wx.Frame):
 		self.toolbar.Realize()
 		return self.toolbar
 
+	# Set Wrap Mode
+	#===============
+	def OnWrapMode(self, event):
+		global WRAP_MODE
+		config.SetPath('Editor')
+		if self.editorSubMenu.IsChecked(self.ID_WRAPMODE):
+			self.cellaEditor.SetWrapMode(True)
+			config.WriteInt('wrap_mode', True)
+			WRAP_MODE = True
+		else:
+			self.cellaEditor.SetWrapMode(False)
+			config.WriteInt('wrap_mode', False)
+			WRAP_MODE = False
+		config.SetPath('')
+
+	# Show White Space
+	#==================
+	def OnWhiteSpace(self, event):
+		global WHITE_SPACE
+		config.SetPath('Editor')
+		if self.editorSubMenu.IsChecked(self.ID_WHITESPACE):
+			self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS)
+			config.WriteInt('white_space', True)
+			WHITE_SPACE = True
+		else:
+			self.cellaEditor.SetViewWhiteSpace(False)
+			config.WriteInt('white_space', False)
+			WHITE_SPACE = False
+		config.SetPath('')
+
+	# Show Indentation Guides
+	#=========================
+	def OnIndentationGuides(self, event):
+		global INDENTATION_GUIDES
+		config.SetPath('Editor')
+		if self.editorSubMenu.IsChecked(self.ID_INDENTATIONGUIDES):
+			self.cellaEditor.SetIndentationGuides(True)
+			config.WriteInt('indentation_guides', True)
+			INDENTATION_GUIDES = True
+		else:
+			self.cellaEditor.SetIndentationGuides(False)
+			config.WriteInt('indentation_guides', False)
+			INDENTATION_GUIDES = False
+		config.SetPath('')
+
+	# Show Line Endings
+	#===================
+	def OnLineEndings(self, event):
+		global LINE_ENDINGS
+		config.SetPath('Editor')
+		if self.editorSubMenu.IsChecked(self.ID_LINEENDINGS):
+			self.cellaEditor.SetViewEOL(True)
+			config.WriteInt('line_endings', True)
+			LINE_ENDINGS = True
+		else:
+			self.cellaEditor.SetViewEOL(False)
+			config.WriteInt('line_endings', False)
+			LINE_ENDINGS = False
+		config.SetPath('')
+
+	# Toggle Full Screen
+	#====================
+	def OnFullScreen(self, event):
+		self.ShowFullScreen(not self.IsFullScreen(), wx.FULLSCREEN_NOCAPTION)
+
+	# Show Tool Bar
+	#===============
+	def OnToolBar(self, event):
+		global EDITOR_TOOLBAR
+		config.SetPath('Editor')
+		if self.viewMenu.IsChecked(self.ID_TOOLBAR):
+			self.iconToolbar = self.CreateIconToolbar()
+			config.WriteInt('show_toolbar', True)
+			EDITOR_TOOLBAR = True
+		else:
+			self.iconToolbar.Destroy()
+			config.WriteInt('show_toolbar', False)
+			EDITOR_TOOLBAR = False
+		config.SetPath('')
+
+	# Show Status Bar
+	#=================
+	def OnStatusBar(self, event):
+		global EDITOR_STATUSBAR
+		config.SetPath('Editor')
+		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
+			self.statusbar.Show()
+			config.WriteInt('show_statusbar', True)
+			EDITOR_STATUSBAR = True
+		else:
+			self.statusbar.Hide()
+			config.WriteInt('show_statusbar', False)
+			EDITOR_STATUSBAR = False
+		config.SetPath('')
+
+	# Show Markdown Help
+	#====================
+	def IfKeyDown(self, event):
+		keyCode = event.GetKeyCode()
+		if keyCode == wx.WXK_F1:
+			self.contents = MarkdownHelp(self)
+			self.contents.ShowHelp('Markdown')
+			self.contents.Show()
+		event.Skip()
+
+	# Open Calendar dialog
+	#======================
+	def OnCalendar(self, event):
+		self.calendar = CellaCalendar(self)
+		self.calendar.Show()
+
+	# Insert Date and Time
+	#======================
+	def OnDateTime(self, event):
+		self.cellaEditor.AddText(wx.DateTime.Now().Format('%d.%m.%Y | %H:%M'))
+
+	# General Define for editing Markdown text
+	#==========================================
 	def IfTextChanged(self, event):
 		if not markdownNew:
 			self.SetTitle('*' + MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
@@ -616,15 +705,6 @@ class MarkdownEditor(wx.Frame):
 		if self.iconToolbar:
 			self.toolbar.EnableTool(wx.ID_SAVE, True) # Enable toolbar item Save
 			self.toolbar.EnableTool(wx.ID_UNDO, True) # Enable toolbar item Undo
-		event.Skip()
-
-	def IfKeyDown(self, event):
-		keycode = event.GetKeyCode()
-#		print keycode
-		if keycode == 340:
-			self.contents = MarkdownHelp(self)
-			self.contents.ShowHelp('Markdown')
-			self.contents.Show()
 		event.Skip()
 
 	def OnAppendToFile(self, event):
@@ -800,10 +880,13 @@ class MarkdownEditor(wx.Frame):
 		self.cellaEditor.AddText(stoptag)
 		self.cellaEditor.GotoPos(to+len(stoptag))
 
-	#def OnDelete(self, event):
-		#start, to = self.cellaEditor.GetSelection()
-		#self.cellaEditor.Remove(start, to)
-		#self.markdownTextIsModified = True
+	def OnDelete(self, event):
+		self.cellaEditor.Clear()
+		self.markdownTextIsModified = True
+
+	def OnSelectAll(self, event):
+		self.cellaEditor.SelectAll()
+		self.markdownTextIsModified = True
 
 	def OnCloseEditor(self, event):
 		''' If there were changes, request save the file. '''

@@ -30,58 +30,97 @@ from wx.lib.embeddedimage import PyEmbeddedImage
 
 config = wx.Config('cellabyte/cellaret.conf')
 
-config.SetPath('Main')
-if config.Exists('Select_directory'):
-	SELECT_DIRECTORY = config.ReadInt('Select_directory')
-	WORKING_DIRECTORY = config.Read('Working_directory')
+config.SetPath('General')
+if config.Exists('select_directory'):
+	SELECT_DIRECTORY = config.ReadInt('select_directory')
+	WORKING_DIRECTORY = config.Read('working_directory')
 else:
 	SELECT_DIRECTORY = False # Select Working directory, default False.
-	config.WriteInt('Select_directory', SELECT_DIRECTORY)
+	config.WriteInt('select_directory', SELECT_DIRECTORY)
 	WORKING_DIRECTORY = ''
-	config.Write('Working_directory', WORKING_DIRECTORY)
+	config.Write('working_directory', WORKING_DIRECTORY)
 config.SetPath('')
 
 config.SetPath('Browser')
-if config.Exists('Width'):
-	BROWSER_WIDTH, BROWSER_HEIGHT = config.ReadInt('Width'), config.ReadInt('Height')
+if config.Exists('width'):
+	BROWSER_WIDTH, BROWSER_HEIGHT = config.ReadInt('width'), config.ReadInt('height')
 else:
 	(BROWSER_WIDTH, BROWSER_HEIGHT) = (1024, 768)
-	config.WriteInt('Width', BROWSER_WIDTH)
-	config.WriteInt('Height', BROWSER_HEIGHT)
-if config.Exists('Font_size'):
-	BROWSER_FONT_SIZE = config.ReadInt('Font_size')
+	config.WriteInt('width', BROWSER_WIDTH)
+	config.WriteInt('height', BROWSER_HEIGHT)
+if config.Exists('font_size'):
+	BROWSER_FONT_SIZE = config.ReadInt('font_size')
 else:
 	BROWSER_FONT_SIZE = 10 # Font size, default 10
-	config.WriteInt('Font_size', BROWSER_FONT_SIZE)
-if config.Exists('Print_filename'):
-	PRINT_FILENAME = config.ReadInt('Print_filename')
+	config.WriteInt('font_size', BROWSER_FONT_SIZE)
+if config.Exists('print_filename'):
+	PRINT_FILENAME = config.ReadInt('print_filename')
 else:
 	PRINT_FILENAME = False # Print the filename on the printer page.
-	config.WriteInt('Print_filename', PRINT_FILENAME)
-if config.Exists('Open_link'):
-	WEBBROWSER_OPEN_LINK = config.ReadInt('Open_link')
+	config.WriteInt('print_filename', PRINT_FILENAME)
+if config.Exists('open_link'):
+	WEBBROWSER_OPEN_LINK = config.ReadInt('open_link')
 else:
 	WEBBROWSER_OPEN_LINK = False # Open link in a web browser.
-	config.WriteInt('Open_link', WEBBROWSER_OPEN_LINK)
+	config.WriteInt('open_link', WEBBROWSER_OPEN_LINK)
+
+if config.Exists('show_statusbar'):
+	BROWSER_STATUSBAR = config.ReadInt('show_statusbar')
+else:
+	BROWSER_STATUSBAR = True # Show Status Bar, default True.
+	config.WriteInt('show_statusbar', BROWSER_STATUSBAR)
 config.SetPath('')
 
 config.SetPath('Editor')
-if config.Exists('Width'):
-	EDITOR_WIDTH, EDITOR_HEIGHT = config.ReadInt('Width'), config.ReadInt('Height')
+if config.Exists('width'):
+	EDITOR_WIDTH, EDITOR_HEIGHT = config.ReadInt('width'), config.ReadInt('height')
 else:
 	(EDITOR_WIDTH, EDITOR_HEIGHT) = (800, 600)
-	config.WriteInt('Width', EDITOR_WIDTH)
-	config.WriteInt('Height', EDITOR_HEIGHT)
-if config.Exists('Style_highlighting'):
-	STYLE_HIGHLIGHTING = config.ReadInt('Style_highlighting')
+	config.WriteInt('width', EDITOR_WIDTH)
+	config.WriteInt('height', EDITOR_HEIGHT)
+if config.Exists('style_highlighting'):
+	STYLE_HIGHLIGHTING = config.ReadInt('style_highlighting')
 else:
 	STYLE_HIGHLIGHTING = False # Style highlighting, default False.
-	config.WriteInt('Style_highlighting', STYLE_HIGHLIGHTING)
-if config.Exists('Check_brace'):
-	CHECK_BRACE = config.ReadInt('Check_brace')
+	config.WriteInt('style_highlighting', STYLE_HIGHLIGHTING)
+
+if config.Exists('wrap_mode'):
+	WRAP_MODE = config.ReadInt('wrap_mode')
+else:
+	WRAP_MODE = True # Wrap mode, default True.
+	config.WriteInt('wrap_mode', WRAP_MODE)
+if config.Exists('white_space'):
+	WHITE_SPACE = config.ReadInt('white_space')
+else:
+	WHITE_SPACE = True # Show White Space, default True.
+	config.WriteInt('white_space', WHITE_SPACE)
+if config.Exists('indentation_guides'):
+	INDENTATION_GUIDES = config.ReadInt('indentation_guides')
+else:
+	INDENTATION_GUIDES = False # Show Indentation Guides, default False.
+	config.WriteInt('indentation_guides', INDENTATION_GUIDES)
+if config.Exists('line_endings'):
+	LINE_ENDINGS = config.ReadInt('line_endings')
+else:
+	LINE_ENDINGS = False # Show Line Endings, default False.
+	config.WriteInt('line_endings', LINE_ENDINGS)
+
+if config.Exists('show_toolbar'):
+	EDITOR_TOOLBAR = config.ReadInt('show_toolbar')
+else:
+	EDITOR_TOOLBAR = True # Show Tool Bar, default True.
+	config.WriteInt('show_toolbar', EDITOR_TOOLBAR)
+if config.Exists('show_statusbar'):
+	EDITOR_STATUSBAR = config.ReadInt('show_statusbar')
+else:
+	EDITOR_STATUSBAR = True # Show Status Bar, default True.
+	config.WriteInt('show_statusbar', EDITOR_STATUSBAR)
+
+if config.Exists('check_brace'):
+	CHECK_BRACE = config.ReadInt('check_brace')
 else:
 	CHECK_BRACE = False # Check brace, default False.
-	config.WriteInt('Check_brace', CHECK_BRACE)
+	config.WriteInt('check_brace', CHECK_BRACE)
 config.SetPath('')
 
 OS_LANGUAGE, OS_ENCODING = locale.getdefaultlocale()
@@ -98,7 +137,7 @@ MD_FILE_ARGV = False
 # Images
 #==============================================================================
 
-Cellaret_24 = PyEmbeddedImage(
+pngCellaret_24 = PyEmbeddedImage(
 	"iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAAlwSFlz"
 	"AAALEwAACxMBAJqcGAAAAAd0SU1FB94EFQ8ONbXLeAIAAAAZdEVYdENvbW1lbnQAQ3JlYXRl"
 	"ZCB3aXRoIEdJTVBXgQ4XAAACw0lEQVRIx5WWv04cVxTGf98IRcgNcqrIBSRVXBCEgvwEIcgU"
@@ -117,7 +156,7 @@ Cellaret_24 = PyEmbeddedImage(
 	"Vb1i3WZFGv1tEewBPZujLBn9benkRfQB9vt0OEUhz8AAAAAASUVORK5CYII="
 	)
 
-Cellaret_32 = PyEmbeddedImage(
+pngCellaret_32 = PyEmbeddedImage(
 	"iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAAlwSFlz"
 	"AAALEwAACxMBAJqcGAAAAAd0SU1FB94EFQ8zDfchiCIAAAAZdEVYdENvbW1lbnQAQ3JlYXRl"
 	"ZCB3aXRoIEdJTVBXgQ4XAAACCklEQVRYw8WXPVIbQRBGX48ccwLbVa6iyr6CExHhRFJE5NQJ"
@@ -133,4 +172,4 @@ Cellaret_32 = PyEmbeddedImage(
 	"AWzYJuaY/UW0AAAAAElFTkSuQmCC"
 	)
 
-# Cellaret_32.GetBitmap().SaveFile('cellaret.png', wx.BITMAP_TYPE_PNG)
+# pngCellaret_32.GetBitmap().SaveFile('cellaret.png', wx.BITMAP_TYPE_PNG)

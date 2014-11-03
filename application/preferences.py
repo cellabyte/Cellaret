@@ -26,7 +26,7 @@ limitations under the License.
 
 import wx
 import environment
-from environment import Cellaret_24
+from environment import pngCellaret_24
 
 config = wx.Config('cellabyte/cellaret.conf')
 
@@ -37,7 +37,7 @@ class CellaretPreferences(wx.Frame):
 	def __init__(self, parent):
 		wx.Frame.__init__(self, None, size = (440, 340), title = _('Cellaret Preferences'))
 		self.parent = parent
-		favicon = Cellaret_24.GetIcon()
+		favicon = pngCellaret_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 
@@ -58,9 +58,9 @@ class CellaretPreferences(wx.Frame):
 		wx.StaticText(self.main, wx.ID_ANY, _('Select Working directory'), (20, 20))
 		self.cb1SelectDirectory = wx.CheckBox(self.main, wx.ID_ANY, '', (20, 40))
 
-		config.SetPath('Main')
-		self.cb1SelectDirectory.SetValue(config.ReadInt('Select_directory'))
-		environment.WORKING_DIRECTORY = config.Read('Working_directory')
+		config.SetPath('General')
+		self.cb1SelectDirectory.SetValue(config.ReadInt('select_directory'))
+		environment.WORKING_DIRECTORY = config.Read('working_directory')
 		config.SetPath('')
 
 		self.WorkingDirectory = wx.TextCtrl(self.main, wx.ID_ANY, str(environment.WORKING_DIRECTORY), (40, 40), (385, -1))
@@ -75,9 +75,9 @@ class CellaretPreferences(wx.Frame):
 		self.cb2Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Open link in a web browser'), (200, 45))
 
 		config.SetPath('Browser')
-		environment.BROWSER_FONT_SIZE = config.ReadInt('Font_size')
-		self.cb1Browser.SetValue(config.ReadInt('Print_filename'))
-		self.cb2Browser.SetValue(config.ReadInt('Open_link'))
+		environment.BROWSER_FONT_SIZE = config.ReadInt('font_size')
+		self.cb1Browser.SetValue(config.ReadInt('print_filename'))
+		self.cb2Browser.SetValue(config.ReadInt('open_link'))
 		config.SetPath('')
 
 		wx.StaticText(self.browser, wx.ID_ANY, _('Width:'), (20, 20))
@@ -97,8 +97,8 @@ class CellaretPreferences(wx.Frame):
 #		self.cb2Editor = wx.CheckBox(self.editor, wx.ID_ANY, _('Check brace'), (200, 45))
 
 		config.SetPath('Editor')
-		self.cb1Editor.SetValue(config.ReadInt('Style_highlighting'))
-#		self.cb2Editor.SetValue(config.ReadInt('Check_brace'))
+		self.cb1Editor.SetValue(config.ReadInt('style_highlighting'))
+#		self.cb2Editor.SetValue(config.ReadInt('check_brace'))
 		config.SetPath('')
 
 		wx.StaticText(self.editor, wx.ID_ANY, _('Width:'), (20, 20))
@@ -120,28 +120,28 @@ class CellaretPreferences(wx.Frame):
 		self.statusbar = self.CreateStatusBar()
 
 	def OnSaveMain(self, event):
-		config.SetPath('Main')
-		config.WriteInt('Select_directory', self.cb1SelectDirectory.GetValue())
-		config.Write('Working_directory', self.WorkingDirectory.GetValue())
+		config.SetPath('General')
+		config.WriteInt('select_directory', self.cb1SelectDirectory.GetValue())
+		config.Write('working_directory', self.WorkingDirectory.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Main Configuration saved. Program restart required.'))
 
 	def OnSaveBrowser(self, event):
 		config.SetPath('Browser')
-		config.WriteInt('Width', self.sc1Browser.GetValue())
-		config.WriteInt('Height', self.sc2Browser.GetValue())
-		config.WriteInt('Font_size', self.sc3Browser.GetValue())
-		config.WriteInt('Print_filename', self.cb1Browser.GetValue())
-		config.WriteInt('Open_link', self.cb2Browser.GetValue())
+		config.WriteInt('width', self.sc1Browser.GetValue())
+		config.WriteInt('height', self.sc2Browser.GetValue())
+		config.WriteInt('font_size', self.sc3Browser.GetValue())
+		config.WriteInt('print_filename', self.cb1Browser.GetValue())
+		config.WriteInt('open_link', self.cb2Browser.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Browser Configuration saved. Program restart required.'))
 
 	def OnSaveEditor(self, event):
 		config.SetPath('Editor')
-		config.WriteInt('Width', self.sc1Editor.GetValue())
-		config.WriteInt('Height', self.sc2Editor.GetValue())
-		config.WriteInt('Style_highlighting', self.cb1Editor.GetValue())
-#		config.WriteInt('Check_brace', self.cb2Editor.GetValue())
+		config.WriteInt('width', self.sc1Editor.GetValue())
+		config.WriteInt('height', self.sc2Editor.GetValue())
+		config.WriteInt('style_highlighting', self.cb1Editor.GetValue())
+#		config.WriteInt('check_brace', self.cb2Editor.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Editor Configuration saved. Program restart required.'))
 
