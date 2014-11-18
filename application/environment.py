@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -115,13 +115,6 @@ if config.Exists('show_statusbar'):
 else:
 	EDITOR_STATUSBAR = True # Show Status Bar, default True.
 	config.WriteInt('show_statusbar', EDITOR_STATUSBAR)
-
-if config.Exists('check_brace'):
-	CHECK_BRACE = config.ReadInt('check_brace')
-else:
-	CHECK_BRACE = False # Check brace, default False.
-	config.WriteInt('check_brace', CHECK_BRACE)
-config.SetPath('')
 
 OS_LANGUAGE, OS_ENCODING = locale.getdefaultlocale()
 

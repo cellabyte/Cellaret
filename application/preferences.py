@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -35,7 +35,7 @@ config = wx.Config('cellabyte/cellaret.conf')
 class CellaretPreferences(wx.Frame):
 
 	def __init__(self, parent):
-		wx.Frame.__init__(self, None, size = (440, 340), title = _('Cellaret Preferences'))
+		wx.Frame.__init__(self, None, size = (440, 340), title = _('Cellaret Preferences'), style = wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
 		self.parent = parent
 		favicon = pngCellaret_24.GetIcon()
 		self.SetIcon(favicon)
