@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Cellaret 0.1.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-03 16:08+0300\n"
+"POT-Creation-Date: 2014-11-19 17:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,11 +49,11 @@ msgstr ""
 msgid "&Print\tCtrl-P"
 msgstr ""
 
-#: application/main.py:101 application/main.py:472
+#: application/main.py:101 application/main.py:473
 msgid "&Quit Cellaret\tCtrl-Q"
 msgstr ""
 
-#: application/main.py:101 application/main.py:472
+#: application/main.py:101 application/main.py:473
 msgid "Close window and exit program."
 msgstr ""
 
@@ -65,11 +65,11 @@ msgstr ""
 msgid "Markdown text editor"
 msgstr ""
 
-#: application/main.py:105 application/main.py:477
+#: application/main.py:105 application/main.py:478
 msgid "&Copy\tCtrl-C"
 msgstr ""
 
-#: application/main.py:106 application/main.py:482
+#: application/main.py:106 application/main.py:483
 msgid "Select &All\tCtrl-A"
 msgstr ""
 
@@ -81,15 +81,15 @@ msgstr ""
 msgid "&Refresh\tF5"
 msgstr ""
 
-#: application/main.py:112 application/main.py:493
+#: application/main.py:112 application/main.py:494
 msgid "F&ull Screen\tF11"
 msgstr ""
 
-#: application/main.py:112 application/main.py:493
+#: application/main.py:112 application/main.py:494
 msgid "Toggles Full Screen Mode"
 msgstr ""
 
-#: application/main.py:113 application/main.py:495
+#: application/main.py:113 application/main.py:496
 msgid "Status &Bar\tCtrl-B"
 msgstr ""
 
@@ -109,15 +109,15 @@ msgstr ""
 msgid "Information about this program"
 msgstr ""
 
-#: application/main.py:121 application/main.py:509
+#: application/main.py:121 application/main.py:510
 msgid "&File"
 msgstr ""
 
-#: application/main.py:122 application/main.py:510
+#: application/main.py:122 application/main.py:511
 msgid "&Edit"
 msgstr ""
 
-#: application/main.py:123 application/main.py:511
+#: application/main.py:123 application/main.py:512
 msgid "&View"
 msgstr ""
 
@@ -137,12 +137,12 @@ msgstr ""
 msgid "Select All"
 msgstr ""
 
-#: application/main.py:203 application/main.py:712
+#: application/main.py:203 application/main.py:713
 msgid "Choose a file to open"
 msgstr ""
 
-#: application/main.py:221 application/main.py:224 application/main.py:724
-#: application/main.py:727
+#: application/main.py:221 application/main.py:224 application/main.py:726
+#: application/main.py:729
 msgid "Error opening file\n"
 msgstr ""
 
@@ -150,11 +150,11 @@ msgstr ""
 msgid "new.html"
 msgstr ""
 
-#: application/main.py:257 application/main.py:772
+#: application/main.py:257 application/main.py:774
 msgid "Save file As..."
 msgstr ""
 
-#: application/main.py:269 application/main.py:752 application/main.py:798
+#: application/main.py:269 application/main.py:754 application/main.py:800
 msgid "Error saving file\n"
 msgstr ""
 
@@ -166,196 +166,196 @@ msgstr ""
 msgid "New File - Cellaret File Editor"
 msgstr ""
 
-#: application/main.py:429 application/main.py:701 application/main.py:743
-#: application/main.py:790
+#: application/main.py:433 application/main.py:702 application/main.py:745
+#: application/main.py:792
 msgid "Cellaret File Editor"
 msgstr ""
 
-#: application/main.py:467
+#: application/main.py:468
 msgid "App&end\tCtrl-O"
 msgstr ""
 
-#: application/main.py:467 application/main.py:553
+#: application/main.py:468 application/main.py:554
 msgid "Append to File"
 msgstr ""
 
-#: application/main.py:468
+#: application/main.py:469
 msgid "&Save\tCtrl-S"
 msgstr ""
 
-#: application/main.py:468
+#: application/main.py:469
 msgid "Save File"
 msgstr ""
 
-#: application/main.py:469
+#: application/main.py:470
 msgid "Save &as..."
 msgstr ""
 
-#: application/main.py:469
+#: application/main.py:470
 msgid "Save as new File"
 msgstr ""
 
-#: application/main.py:471
+#: application/main.py:472
 msgid "&Close Editor\tCtrl-W"
 msgstr ""
 
-#: application/main.py:471
+#: application/main.py:472
 msgid "Close window."
 msgstr ""
 
-#: application/main.py:474
+#: application/main.py:475
 msgid "&Undo\tCtrl-Z"
 msgstr ""
 
-#: application/main.py:475
+#: application/main.py:476
 msgid "&Redo\tCtrl-Y"
 msgstr ""
 
-#: application/main.py:478
+#: application/main.py:479
 msgid "C&ut\tCtrl-X"
 msgstr ""
 
-#: application/main.py:479
+#: application/main.py:480
 msgid "&Paste\tCtrl-V"
 msgstr ""
 
-#: application/main.py:480
+#: application/main.py:481
 msgid "&Delete"
 msgstr ""
 
-#: application/main.py:484
+#: application/main.py:485
 msgid "&Insert Custom Date..."
 msgstr ""
 
-#: application/main.py:485
+#: application/main.py:486
 msgid "In&sert Date and Time"
 msgstr ""
 
-#: application/main.py:487
+#: application/main.py:488
 msgid "&Editor"
 msgstr ""
 
-#: application/main.py:488
+#: application/main.py:489
 msgid "Line &Wrapping"
 msgstr ""
 
-#: application/main.py:488
+#: application/main.py:489
 msgid "Set Wrap Mode"
 msgstr ""
 
-#: application/main.py:489
+#: application/main.py:490
 msgid "Show White &Space"
 msgstr ""
 
-#: application/main.py:489
+#: application/main.py:490
 msgid "Show White Space"
 msgstr ""
 
-#: application/main.py:490
+#: application/main.py:491
 msgid "Show &Indentation Guides"
 msgstr ""
 
-#: application/main.py:490
+#: application/main.py:491
 msgid "Show Indentation Guides"
 msgstr ""
 
-#: application/main.py:491
+#: application/main.py:492
 msgid "Show Line &Endings"
 msgstr ""
 
-#: application/main.py:491
+#: application/main.py:492
 msgid "Show Line Endings"
 msgstr ""
 
-#: application/main.py:494
+#: application/main.py:495
 msgid "&Tool Bar"
 msgstr ""
 
-#: application/main.py:494
+#: application/main.py:495
 msgid "Show Tool Bar"
 msgstr ""
 
-#: application/main.py:495
+#: application/main.py:496
 msgid "Show Status Bar"
 msgstr ""
 
-#: application/main.py:554
+#: application/main.py:555
 msgid "Save"
 msgstr ""
 
-#: application/main.py:555
+#: application/main.py:556
 msgid "Save as..."
 msgstr ""
 
-#: application/main.py:557
+#: application/main.py:558
 msgid "Copy"
 msgstr ""
 
-#: application/main.py:558
+#: application/main.py:559
 msgid "Cut"
 msgstr ""
 
-#: application/main.py:559
+#: application/main.py:560
 msgid "Paste"
 msgstr ""
 
-#: application/main.py:561
+#: application/main.py:562
 msgid "Undo"
 msgstr ""
 
-#: application/main.py:562
+#: application/main.py:563
 msgid "Redo"
 msgstr ""
 
-#: application/main.py:564
+#: application/main.py:565
 msgid "Bold"
 msgstr ""
 
-#: application/main.py:565
+#: application/main.py:566
 msgid "Italic"
 msgstr ""
 
-#: application/main.py:567
+#: application/main.py:568
 msgid "Named Hyperlink"
 msgstr ""
 
-#: application/main.py:568
+#: application/main.py:569
 msgid "Hyperlink"
 msgstr ""
 
-#: application/main.py:569
+#: application/main.py:570
 msgid "Insert Image"
 msgstr ""
 
-#: application/main.py:571
+#: application/main.py:572
 msgid "Close Editor"
 msgstr ""
 
-#: application/main.py:572
+#: application/main.py:573
 msgid "Quit Cellaret"
 msgstr ""
 
-#: application/main.py:740 application/main.py:787
+#: application/main.py:742 application/main.py:789
 msgid " Saved"
 msgstr ""
 
-#: application/main.py:766 application/main.py:769
+#: application/main.py:768 application/main.py:771
 msgid "new.md"
 msgstr ""
 
-#: application/main.py:848
+#: application/main.py:857
 msgid "Enter Hyperlink"
 msgstr ""
 
-#: application/main.py:848
+#: application/main.py:857
 msgid "URL Entry"
 msgstr ""
 
-#: application/main.py:864
+#: application/main.py:873
 msgid "Choose image file"
 msgstr ""
 
-#: application/main.py:894 application/main.py:913
+#: application/main.py:902 application/main.py:921
 msgid "File is modified. Save before exit?"
 msgstr ""
 

@@ -426,15 +426,15 @@ class MarkdownEditor(wx.Frame):
 		if not markdownNew:
 			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			self.cellaEditor.AppendText(filePath.read()) # read and deduce Markdown text
-			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 			filePath.close() # close the file
-			self.cellaEditor.EmptyUndoBuffer() # clear the Undo buffer
+			self.cellaEditor.OnHighlighting(self) # Set the Highlighting style.
+			self.cellaEditor.EmptyUndoBuffer() # Clear the Undo buffer
+			self.markdownTextIsModified = False # Set False, because the text was changed.
+			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 			self.edLastFilenameSaved = MD_PATH_FILE # path to the file (for saving)
 			self.imagePathFile = MD_PATH_FILE # path to the image file (for the beginning)
 		else:
 			self.imagePathFile = None
-
-		self.markdownTextIsModified = False # Set False, because the text was changed.
 
 		self.statusbar = self.CreateStatusBar()
 		if not EDITOR_STATUSBAR:
@@ -442,6 +442,7 @@ class MarkdownEditor(wx.Frame):
 
 		self.cellaEditor.Bind(wx.stc.EVT_STC_MODIFIED, self.IfTextChanged)
 		self.cellaEditor.Bind(wx.EVT_KEY_DOWN, self.IfKeyDown)
+		self.cellaEditor.Bind(wx.EVT_KEY_UP, self.cellaEditor.OnHighlighting) # Event triggered when you want to set the highlighting style.
 #		self.Bind(wx.EVT_UPDATE_UI, self.IfKeyDown, self.cellaEditor)
 
 		# Menu menuBar
@@ -719,6 +720,7 @@ class MarkdownEditor(wx.Frame):
 
 				self.cellaEditor.AddText(mdText) # Add text at cursor position
 				self.markdownTextIsModified = True
+				self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 			except IOError, error:
 				dlg = wx.MessageDialog(self, _('Error opening file\n') + str(error))
@@ -802,6 +804,7 @@ class MarkdownEditor(wx.Frame):
 	def OnCut(self, event):
 		self.cellaEditor.Cut()
 		self.markdownTextIsModified = True
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	def OnCopy(self, event):
 		self.cellaEditor.Copy()
@@ -809,10 +812,12 @@ class MarkdownEditor(wx.Frame):
 	def OnPaste(self, event):
 		self.cellaEditor.Paste()
 		self.markdownTextIsModified = True
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	def OnUndo(self, event):
 		if self.cellaEditor.CanUndo():
 			self.cellaEditor.Undo()
+			self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 			self.editMenu.Enable(wx.ID_REDO, True)
 			if self.iconToolbar:
 				self.toolbar.EnableTool(wx.ID_REDO, True)
@@ -824,6 +829,7 @@ class MarkdownEditor(wx.Frame):
 	def OnRedo(self, event):
 		if self.cellaEditor.CanRedo():
 			self.cellaEditor.Redo()
+			self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 			self.editMenu.Enable(wx.ID_UNDO, True)
 			if self.iconToolbar:
 				self.toolbar.EnableTool(wx.ID_UNDO, True)
@@ -835,14 +841,17 @@ class MarkdownEditor(wx.Frame):
 	def OnBold(self, event):
 		self.InsertTags('**', '**')
 		self.markdownTextIsModified = True
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	def OnItalic(self, event):
 		self.InsertTags('_', '_')
 		self.markdownTextIsModified = True
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	def OnHyperlink(self, event):
 		self.InsertTags('<', '>')
 		self.markdownTextIsModified = True
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	def OnNamedHyperlink(self, event):
 		dlg = wx.TextEntryDialog(self, _('Enter Hyperlink'), _('URL Entry'))
@@ -850,6 +859,7 @@ class MarkdownEditor(wx.Frame):
 		if dlg.ShowModal() == wx.ID_OK:
 			self.InsertTags('[', '](%s "")' % dlg.GetValue())
 			self.markdownTextIsModified = True
+			self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 		dlg.Destroy()
 
 	def OnInsertImage(self, event):
@@ -859,16 +869,14 @@ class MarkdownEditor(wx.Frame):
 			dir = WORKING_DIRECTORY
 		else:
 			dir = ''
-
 		wildcardStr = 'Images (*.jpg, *.gif, *.png)|*.jpg;*.gif;*.png|All files (*)|*'
 		insertImageDlg = wx.FileDialog(self, message = _('Choose image file'), defaultDir = dir, wildcard = wildcardStr, style=wx.OPEN)
 		if insertImageDlg.ShowModal() == wx.ID_OK:
 			self.imagePathFile = insertImageDlg.GetPath()
-
 			imageFile = os.path.basename(self.imagePathFile)
 			self.cellaEditor.AddText('!['+ imageFile +'](%s)' % self.imagePathFile)
 			self.markdownTextIsModified = True
-
+			self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 		insertImageDlg.Destroy()
 
 	def InsertTags(self, starttag, stoptag):
@@ -883,10 +891,10 @@ class MarkdownEditor(wx.Frame):
 	def OnDelete(self, event):
 		self.cellaEditor.Clear()
 		self.markdownTextIsModified = True
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	def OnSelectAll(self, event):
 		self.cellaEditor.SelectAll()
-		self.markdownTextIsModified = True
 
 	def OnCloseEditor(self, event):
 		''' If there were changes, request save the file. '''
