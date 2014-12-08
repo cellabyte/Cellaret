@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -83,6 +82,11 @@ if config.Exists('style_highlighting'):
 else:
 	STYLE_HIGHLIGHTING = False # Style highlighting, default False.
 	config.WriteInt('style_highlighting', STYLE_HIGHLIGHTING)
+if config.Exists('datetime_format'):
+	DATETIME_FORMAT = config.Read('datetime_format')
+else:
+	DATETIME_FORMAT = '\[%Y-%m-%d\] %H:%M'
+	config.Write('datetime_format', DATETIME_FORMAT)
 
 if config.Exists('wrap_mode'):
 	WRAP_MODE = config.ReadInt('wrap_mode')

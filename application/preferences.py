@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -63,7 +62,7 @@ class CellaretPreferences(wx.Frame):
 		environment.WORKING_DIRECTORY = config.Read('working_directory')
 		config.SetPath('')
 
-		self.WorkingDirectory = wx.TextCtrl(self.main, wx.ID_ANY, str(environment.WORKING_DIRECTORY), (40, 40), (385, -1))
+		self.workingDirectory = wx.TextCtrl(self.main, wx.ID_ANY, str(environment.WORKING_DIRECTORY), (40, 40), (385, -1))
 
 		closeButton = wx.Button(self.main, wx.ID_CLOSE, pos=(225, 240))
 		self.okMainButton = wx.Button(self.main, wx.ID_OK, pos=(325, 240))
@@ -98,6 +97,7 @@ class CellaretPreferences(wx.Frame):
 
 		config.SetPath('Editor')
 		self.cb1Editor.SetValue(config.ReadInt('style_highlighting'))
+		environment.DATETIME_FORMAT = config.Read('datetime_format')
 #		self.cb2Editor.SetValue(config.ReadInt('check_brace'))
 		config.SetPath('')
 
@@ -105,6 +105,9 @@ class CellaretPreferences(wx.Frame):
 		wx.StaticText(self.editor, wx.ID_ANY, _('Height:'), (20, 50))
 		self.sc1Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(environment.EDITOR_WIDTH), (100, 15), (60, -1), min=200, max=2000)
 		self.sc2Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(environment.EDITOR_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
+
+		wx.StaticText(self.editor, wx.ID_ANY, _('Format Date and Time:'), (20, 80))
+		self.datetimeFormat = wx.TextCtrl(self.editor, wx.ID_ANY, str(environment.DATETIME_FORMAT), (200, 75), (225, -1))
 
 		closeButton = wx.Button(self.editor, wx.ID_CLOSE, pos=(225, 240))
 		self.okEditorButton = wx.Button(self.editor, wx.ID_OK, pos=(325, 240))
@@ -122,7 +125,7 @@ class CellaretPreferences(wx.Frame):
 	def OnSaveMain(self, event):
 		config.SetPath('General')
 		config.WriteInt('select_directory', self.cb1SelectDirectory.GetValue())
-		config.Write('working_directory', self.WorkingDirectory.GetValue())
+		config.Write('working_directory', self.workingDirectory.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Main Configuration saved. Program restart required.'))
 
@@ -141,6 +144,7 @@ class CellaretPreferences(wx.Frame):
 		config.WriteInt('width', self.sc1Editor.GetValue())
 		config.WriteInt('height', self.sc2Editor.GetValue())
 		config.WriteInt('style_highlighting', self.cb1Editor.GetValue())
+		config.Write('datetime_format', self.datetimeFormat.GetValue())
 #		config.WriteInt('check_brace', self.cb2Editor.GetValue())
 		config.SetPath('')
 		self.statusbar.SetStatusText(_('Editor Configuration saved. Program restart required.'))

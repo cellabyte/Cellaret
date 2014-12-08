@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -693,7 +692,8 @@ class MarkdownEditor(wx.Frame):
 	# Insert Date and Time
 	#======================
 	def OnDateTime(self, event):
-		self.cellaEditor.AddText(wx.DateTime.Now().Format('%d.%m.%Y | %H:%M'))
+		self.cellaEditor.AddText(wx.DateTime.Now().Format(DATETIME_FORMAT))
+		self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 
 	# General Define for editing Markdown text
 	#==========================================
@@ -760,7 +760,11 @@ class MarkdownEditor(wx.Frame):
 		global MD_PATH_FILE
 		global MD_DIR_NAME
 		global MD_BASE_NAME
-		if MD_PATH_FILE:
+		global markdownNew
+		if MD_PATH_FILE and markdownNew:
+			dir = MD_DIR_NAME
+			saveAs = _('new.md')
+		elif MD_PATH_FILE:
 			dir = MD_DIR_NAME
 			saveAs = MD_BASE_NAME
 		elif SELECT_DIRECTORY:
@@ -782,7 +786,6 @@ class MarkdownEditor(wx.Frame):
 				file.write(mdText)
 				file.close()
 
-				global markdownNew
 				markdownNew = False
 
 				self.edLastFilenameSaved = MD_BASE_NAME

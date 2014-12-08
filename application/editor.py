@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
@@ -34,6 +33,14 @@ from environment import *
 class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 	def __init__(self, parent):
 		wx.stc.StyledTextCtrl.__init__(self, parent, style = 0)
+
+		# Attributes for the editing window
+		#===================================
+		self.SetWhitespaceForeground(True, wx.Colour(180, 180, 180)) # Scintilla White Space Colour
+		self.SetMargins(2, 2) # Set left and right margin widths in pixels
+		self.SetMarginType(1, wx.stc.STC_MARGIN_NUMBER) # Margin #1 - Set up the numbers in the margin
+		self.SetMarginMask(1, 0) # Only show line numbers.
+		self.SetMarginWidth(1, 40)
 
 		self.SetLexer(wx.stc.STC_LEX_CONTAINER)
 		self.encoder = codecs.getencoder('utf-8')
@@ -86,6 +93,7 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 		'''		colors
 		#86abd9	#edeceb	#bebebe	#ff0000	#ffff00	#6c8ea2	#0000ff	#ff00ff
 		#a52a2a	#2e8b57	#008a8c	#a020f0	#6a5acd	#008b8b	#007f00	#7f0000
+		#1e90ff
 		'''
 
 		self.StyleSetSpec(self.MARKDOWN_DEFAULT, 'fore:#404040,face:%(helv)s,size:%(size)d' % faces)
@@ -102,7 +110,7 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 		self.StyleSetSpec(self.MARKDOWN_HEADER6, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_PRECHAR, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_ULIST_ITEM, 'fore:#6a5acd,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_OLIST_ITEM, 'fore:#0000ff,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(self.MARKDOWN_OLIST_ITEM, 'fore:#6a5acd,face:%(helv)s,size:%(size)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_BLOCKQUOTE, 'fore:#a020f0,face:%(helv)s,size:%(size)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_STRIKEOUT, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_HRULE, 'fore:#7f0000,face:%(mono)s,size:%(size)d,bold' % faces)
@@ -111,14 +119,6 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 		self.StyleSetSpec(self.MARKDOWN_CODE2, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_CODEBK, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
 		self.StyleSetSpec(self.MARKDOWN_IMAGE, 'fore:#7f0000,face:%(helv)s,size:%(size)d,bold' % faces)
-
-		# Other useful attributes for the editing window
-		#================================================
-		self.SetWhitespaceForeground(True, wx.Colour(180, 180, 180)) # Scintilla White Space Colour
-		self.SetMargins(2, 2) # Set left and right margin widths in pixels
-		self.SetMarginType(1, wx.stc.STC_MARGIN_NUMBER) # Margin #1 - Set up the numbers in the margin
-		self.SetMarginMask(1, 0) # Only show line numbers.
-		self.SetMarginWidth(1, 40)
 
 	def CalcByteLen(self, text):
 		return len(self.encoder(text)[0]) # Calculate the length of the string in bytes (not characters).
@@ -148,15 +148,15 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 			self.HighlightLine(u'- ', self.MARKDOWN_ULIST_ITEM)
 			self.HighlightLine(u'> ', self.MARKDOWN_BLOCKQUOTE)
 
-#			self.HighlightWord(u'~~', self.MARKDOWN_STRIKEOUT)
+			self.HighlightEolTab(self.MARKDOWN_CODE2)
+
+			self.HighlightLine('\t' + u'* ', self.MARKDOWN_OLIST_ITEM)
+			self.HighlightLine('\t' + u'+ ', self.MARKDOWN_OLIST_ITEM)
+			self.HighlightLine('\t' + u'- ', self.MARKDOWN_OLIST_ITEM)
 
 			self.HighlightClause(u'[', u']', self.MARKDOWN_LINK)
 			self.HighlightClause(u'(http', u')', self.MARKDOWN_LINK)
 			self.HighlightClause(u'<http', u'>', self.MARKDOWN_LINK)
-
-			self.HighlightPhrase(u'`', self.MARKDOWN_CODE)
-			self.HighlightEolTab(self.MARKDOWN_CODE2)
-#			self.HighlightWord(u'~~~', self.MARKDOWN_CODEBK)
 
 			self.HighlightLine(u'#', self.MARKDOWN_HEADER1)
 			self.HighlightLine(u'##', self.MARKDOWN_HEADER2)
@@ -166,7 +166,45 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 #			self.HighlightLine(u'######', self.MARKDOWN_HEADER6)
 
 			self.HighlightClause(u'![', u')', self.MARKDOWN_IMAGE)
+
+			self.HighlightPhrase(u'`', self.MARKDOWN_CODE)
+
 			self.HighlightWord(u'***', self.MARKDOWN_HRULE)
+
+	# Clause highlighting
+	#=====================
+	def HighlightClause(self, highlight, endHighlight, style, mask = 0xff):
+		text = self.GetText()
+		pos = text.find(highlight)
+		while pos != -1:
+			endLine = text.find(endHighlight, pos)
+			bytePos = self.CalcBytePos(text, pos) # Get the current position in bytes.
+			byteEndPos = self.CalcBytePos(text, endLine)
+			byteLen = self.CalcByteLen(highlight) # Calculate the length of the search string in bytes.
+			byteEndLen = self.CalcByteLen(endHighlight) # Calculate the length end of the search string in bytes.
+
+			textByteLen = byteEndPos - bytePos + byteEndLen
+
+			#print 'bytePos: ' bytePos
+			#print 'byteEndPos: ' byteEndPos
+			#print ''
+			#print 'pos: ' pos
+			#print 'endLine: ' endLine
+			#print 'byteLen: ' byteLen
+			#print 'byteEndLen: ' byteEndLen
+			#print ''
+			#print 'textByteLen: ' textByteLen
+			#print ''
+			#print ''
+
+			''' Apply Style. '''
+			self.StartStyling(bytePos, mask)
+			if endLine < 1:
+				self.SetStyling(byteLen, style)
+				pos = text.find(highlight, pos + len(highlight))
+			else:
+				self.SetStyling(textByteLen, style)
+				pos = text.find(highlight, endLine)
 
 	# Word highlighting
 	#===================
@@ -224,41 +262,6 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 			else:
 				self.SetStyling(textByteLen, style)
 				pos = text.find('\n\t', endLine)
-
-	# Clause highlighting
-	#=====================
-	def HighlightClause(self, highlight, endHighlight, style, mask = 0xff):
-		text = self.GetText()
-		pos = text.find(highlight)
-		while pos != -1:
-			endLine = text.find(endHighlight, pos)
-			bytePos = self.CalcBytePos(text, pos) # Get the current position in bytes.
-			byteEndPos = self.CalcBytePos(text, endLine)
-			byteLen = self.CalcByteLen(highlight) # Calculate the length of the search string in bytes.
-			byteEndLen = self.CalcByteLen(endHighlight) # Calculate the length end of the search string in bytes.
-
-			textByteLen = byteEndPos - bytePos + byteEndLen
-
-			#print 'bytePos: ' bytePos
-			#print 'byteEndPos: ' byteEndPos
-			#print ''
-			#print 'pos: ' pos
-			#print 'endLine: ' endLine
-			#print 'byteLen: ' byteLen
-			#print 'byteEndLen: ' byteEndLen
-			#print ''
-			#print 'textByteLen: ' textByteLen
-			#print ''
-			#print ''
-
-			''' Apply Style. '''
-			self.StartStyling(bytePos, mask)
-			if endLine < 1:
-				self.SetStyling(byteLen, style)
-				pos = text.find(highlight, pos + len(highlight))
-			else:
-				self.SetStyling(textByteLen, style)
-				pos = text.find(highlight, endLine)
 
 	# Phrase highlighting
 	#=====================
