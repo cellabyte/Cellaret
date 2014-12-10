@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 '''
-Cellaret v0.1.1 Markdown Browser & Editor
+Cellaret v0.1.2 Markdown Browser & Editor
 main.py
 '''
 
@@ -341,7 +341,7 @@ class MarkdownBrowser(wx.Frame):
 
 		info.SetIcon(getCellaret_32Icon)
 		info.SetName('Cellaret')
-		info.SetVersion('0.1.1')
+		info.SetVersion('0.1.2')
 		info.SetDescription(description)
 		info.SetCopyright('Copyright 2014 Roman Verin')
 		info.SetWebSite('http://cellabyte.com')
