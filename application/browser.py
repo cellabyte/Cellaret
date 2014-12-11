@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 '''
-Cellaret v0.1.2 Markdown Browser & Editor
+Cellaret v0.1.3 Markdown Browser & Editor
 browser.py
 '''
 
@@ -24,6 +24,7 @@ limitations under the License.
 '''
 
 import wx
+import os
 import webbrowser
 import wx.html as html
 from wx.html import HtmlEasyPrinting
@@ -32,9 +33,10 @@ from environment import *
 # HTML Window subclass
 #==============================================================================
 class CellaHtmlWindow(html.HtmlWindow):
+
 	def __init__(self, parent):
 		html.HtmlWindow.__init__(self, parent, style=wx.NO_FULL_REPAINT_ON_RESIZE | wx.SUNKEN_BORDER)
-		if "gtk2" in wx.PlatformInfo:
+		if 'gtk2' in wx.PlatformInfo:
 			self.SetStandardFonts(BROWSER_FONT_SIZE)
 			self.SetBackgroundColour(wx.WHITE)
 
@@ -82,3 +84,29 @@ class CellaPrinter(HtmlEasyPrinting):
 		if PRINT_FILENAME:
 			self.SetHeader(doc_name)
 		self.PrintText(html)
+
+# Markdown Help
+#==============================================================================
+class MarkdownHelp(wx.Frame):
+
+	def __init__(self, parent):
+		wx.Frame.__init__(self, None, size = (800, 600), title = _('Cellaret Help'))
+		favicon = pngCellaret_24.GetIcon()
+		self.SetIcon(favicon)
+		self.Centre()
+
+		if os.path.isdir(os.path.join(EXEC_PATH, 'help', OS_LANGUAGE)):
+			helpPath = os.path.join(EXEC_PATH, 'help', OS_LANGUAGE)
+		else:
+			helpPath = os.path.join(EXEC_PATH, 'help', 'en_US')
+
+		self.helpWindow = html.HtmlHelpWindow(self, wx.ID_ANY, wx.DefaultPosition, self.GetClientSize(), wx.TAB_TRAVERSAL | wx.BORDER_NONE, html.HF_DEFAULT_STYLE)
+		self.helpController = html.HtmlHelpController(html.HF_EMBEDDED)
+		self.helpController.SetHelpWindow(self.helpWindow)
+		self.helpController.AddBook(os.path.join(helpPath, 'contents.hhp'))
+
+	def ShowContents(self):
+		self.helpController.DisplayContents()
+
+	def ShowHelp(self, subHelp):
+		self.helpController.Display(subHelp)

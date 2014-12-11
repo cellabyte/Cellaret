@@ -4,7 +4,7 @@
 from __future__ import unicode_literals
 
 '''
-Cellaret v0.1.2 Markdown Browser & Editor
+Cellaret v0.1.3 Markdown Browser & Editor
 cellaret.py
 '''
 

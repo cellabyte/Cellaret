@@ -25,7 +25,7 @@ Get started at `http://cellabyte.com` _(coming soon...)_.
 
 ## Changelog
 
-- v0.1.2 - stable release.
+- [v0.1.2](https://github.com/cellabyte/Cellaret/releases/tag/v0.1.2 "Download") - stable release.
 - v0.1.1 - initial Git.
 
 ## Author
