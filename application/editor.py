@@ -34,16 +34,11 @@ from environment import *
 
 config = wx.Config('cellabyte/cellaret.conf')
 
-markdownNew = True
-MD_PATH_FILE = None
-MD_DIR_NAME = None
-MD_BASE_NAME = None
-
 # Markdown Editor (child wx.Frame)
 #==============================================================================
 class MarkdownEditor(wx.Frame):
 
-	def __init__(self, parent):
+	def __init__(self, parent, mdPathFile, mdDirName, mdBaseName, newFile):
 		wx.Frame.__init__(self, None, size = (EDITOR_WIDTH, EDITOR_HEIGHT), title = _('New File - Cellaret File Editor'))
 		self.parent = parent
 		favicon = pngCellaret_24.GetIcon()
@@ -53,6 +48,15 @@ class MarkdownEditor(wx.Frame):
 
 		# EDITOR STATE VARS
 		#==================
+		global NEW_FILE
+		global MD_PATH_FILE
+		global MD_DIR_NAME
+		global MD_BASE_NAME
+		NEW_FILE = newFile
+		MD_PATH_FILE = mdPathFile
+		MD_DIR_NAME = mdDirName
+		MD_BASE_NAME = mdBaseName
+
 		self.markdownTextIsModified = False # file is changed (Modified)
 		self.edLastFilenameSaved = False # No path to the file (new file)
 		self.fileOpenDir = os.getcwd()
@@ -72,7 +76,7 @@ class MarkdownEditor(wx.Frame):
 		self.cellaEditor.SetIndentationGuides(INDENTATION_GUIDES) # Scintilla Show Indentation Guides
 		self.cellaEditor.SetViewEOL(LINE_ENDINGS) # Scintilla Show Line Endings
 
-		if not markdownNew:
+		if not NEW_FILE:
 			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			self.cellaEditor.AppendText(filePath.read()) # read and deduce Markdown text
 			filePath.close() # close the file
@@ -348,7 +352,7 @@ class MarkdownEditor(wx.Frame):
 	# General Define for editing Markdown text
 	#==========================================
 	def IfTextChanged(self, event):
-		if not markdownNew:
+		if not NEW_FILE:
 			self.SetTitle('*' + MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 		self.markdownTextIsModified = True
 		self.fileMenu.Enable(wx.ID_SAVE, True) # Enable menu item Save
@@ -410,8 +414,8 @@ class MarkdownEditor(wx.Frame):
 		global MD_PATH_FILE
 		global MD_DIR_NAME
 		global MD_BASE_NAME
-		global markdownNew
-		if MD_PATH_FILE and markdownNew:
+		global NEW_FILE
+		if MD_DIR_NAME and NEW_FILE:
 			dir = MD_DIR_NAME
 			saveAs = _('new.md')
 		elif MD_PATH_FILE:
@@ -436,7 +440,7 @@ class MarkdownEditor(wx.Frame):
 				file.write(mdText)
 				file.close()
 
-				markdownNew = False
+				NEW_FILE = False
 
 				self.edLastFilenameSaved = MD_BASE_NAME
 				self.statusbar.SetStatusText(self.edLastFilenameSaved + _(' Saved'), 0)
@@ -444,7 +448,7 @@ class MarkdownEditor(wx.Frame):
 				self.markdownTextIsModified = False
 				self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - ' + _('Cellaret File Editor'))
 
-				self.parent.OnRefresh(self) # Refresh browser (parent wx.Frame)
+				self.parent.OnSaveRefresh(MD_PATH_FILE, MD_DIR_NAME, MD_BASE_NAME) # Refresh browser (parent wx.Frame)
 				self.fileMenu.Enable(wx.ID_SAVE, False)
 				if self.iconToolbar:
 					self.toolbar.EnableTool(wx.ID_SAVE, False)

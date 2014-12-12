@@ -119,17 +119,9 @@ if config.Exists('show_statusbar'):
 else:
 	EDITOR_STATUSBAR = True # Show Status Bar, default True.
 	config.WriteInt('show_statusbar', EDITOR_STATUSBAR)
+config.SetPath('')
 
 OS_LANGUAGE, OS_ENCODING = locale.getdefaultlocale()
-
-# Don't edit these variables
-#============================
-EXEC_PATH = ''
-MD_PATH_FILE = ''
-MD_DIR_NAME = ''
-MD_BASE_NAME = ''
-MD_PRINT_DATA = ''
-MD_FILE_ARGV = False
 
 # Images
 #==============================================================================

@@ -28,29 +28,26 @@ import wx
 import os
 import sys
 import codecs
-import application.environment
-
-EXEC_PATH = os.path.dirname(os.path.abspath(__file__))
-application.environment.EXEC_PATH = EXEC_PATH
+from application.main import MarkdownBrowser
 
 if len(sys.argv) > 1:
-	MD_PATH_FILE = sys.argv[1]
-	application.environment.MD_FILE_ARGV = True
+	MD_PATH_FILE = os.path.abspath(sys.argv[1])
+	MD_FILE_ARGV = True
 
 	try:
 		MD_PATH_FILE = MD_PATH_FILE.decode('utf-8') # omit in Python 3.x
-		MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
-		MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
-		application.environment.MD_PATH_FILE = MD_PATH_FILE
-		application.environment.MD_DIR_NAME = MD_DIR_NAME
-		application.environment.MD_BASE_NAME = MD_BASE_NAME
 	except UnicodeEncodeError:
 		pass
 
-from application.main import MarkdownBrowser
+	if not os.path.isfile(MD_PATH_FILE):
+		MD_FILE_ARGV = False
+		MD_PATH_FILE = None
+else:
+	MD_FILE_ARGV = False
+	MD_PATH_FILE = None
 
 if __name__ == '__main__':
 
 	app = wx.App()
-	MarkdownBrowser('Cellaret')
+	MarkdownBrowser(MD_FILE_ARGV, MD_PATH_FILE)
 	app.MainLoop()

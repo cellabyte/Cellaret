@@ -34,21 +34,27 @@ import sys
 import codecs
 import markdown
 import gettext
-import editor
 from browser import CellaHtmlWindow, CellaPrinter, MarkdownHelp
 from editor import MarkdownEditor
 from preferences import CellaretPreferences
 from environment import *
 
+EXEC_PATH, refuse = os.path.split(os.path.dirname(os.path.abspath(__file__)))
+
+try:
+	EXEC_PATH = EXEC_PATH.decode('utf-8') # omit in Python 3.x
+except UnicodeEncodeError:
+	pass
+
 config = wx.Config('cellabyte/cellaret.conf')
-gettext.install('cellaret', os.path.join(EXEC_PATH, 'translations'), unicode=True)
+gettext.install('cellaret', os.path.join(EXEC_PATH, 'translations'), unicode = True)
 
 # Markdown Browser (parent wx.Frame)
 #==============================================================================
 class MarkdownBrowser(wx.Frame):
 
-	def __init__(self, title):
-		wx.Frame.__init__(self, None, size = (BROWSER_WIDTH, BROWSER_HEIGHT), title = title)
+	def __init__(self, mdFileArgv, mdPathFile):
+		wx.Frame.__init__(self, None, size = (BROWSER_WIDTH, BROWSER_HEIGHT), title = _('Cellaret'))
 		favicon = pngCellaret_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
@@ -56,6 +62,13 @@ class MarkdownBrowser(wx.Frame):
 
 		# BROWSER STATE VARS
 		#====================
+		global MD_PATH_FILE
+		global MD_DIR_NAME
+		global MD_BASE_NAME
+		global MD_PRINT_DATA
+		MD_FILE_ARGV = mdFileArgv
+		MD_PATH_FILE = mdPathFile
+		MD_DIR_NAME = None
 		self.child = None
 
 		# Browser cellaBrowser
@@ -64,13 +77,14 @@ class MarkdownBrowser(wx.Frame):
 		self.Show(True)
 
 		if MD_FILE_ARGV:
+			MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
+			MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
 			self.filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			self.mdText = self.filePath.read() # read Markdown file
 			self.filePath.close() # close the file
 			self.mdHtml = markdown.markdown(self.mdText) # convert Markdown to html
 			self.cellaBrowser.SetPage(self.mdHtml) # deduce the content as html
 			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
-			global MD_PRINT_DATA
 			MD_PRINT_DATA = self.mdHtml
 
 		# Menu menuBar
@@ -223,6 +237,7 @@ class MarkdownBrowser(wx.Frame):
 		fileOpenDlg.Destroy()
 
 	def OnRefresh(self, event):
+		global MD_PRINT_DATA
 		if MD_PATH_FILE:
 			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
 			mdText = filePath.read() # read Markdown file
@@ -232,7 +247,25 @@ class MarkdownBrowser(wx.Frame):
 			self.cellaBrowser.SetPage(mdHtml) # deduce the content as html
 			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
-			global MD_PRINT_DATA
+			MD_PRINT_DATA = mdHtml
+
+	def OnSaveRefresh(self, mdPathFile, mdDirName, mdBaseName):
+		global MD_PATH_FILE
+		global MD_DIR_NAME
+		global MD_BASE_NAME
+		global MD_PRINT_DATA
+		MD_PATH_FILE = mdPathFile
+		MD_DIR_NAME = mdDirName
+		MD_BASE_NAME = mdBaseName
+		if MD_PATH_FILE:
+			filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
+			mdText = filePath.read() # read Markdown file
+			filePath.close() # close the file
+
+			mdHtml = markdown.markdown(mdText) # convert Markdown to html
+			self.cellaBrowser.SetPage(mdHtml) # deduce the content as html
+			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
+
 			MD_PRINT_DATA = mdHtml
 
 	def SetTitlePlus(self, event):
@@ -290,22 +323,14 @@ class MarkdownBrowser(wx.Frame):
 	def OnEdit(self, event):
 		if MD_PATH_FILE:
 			self.DisableMenuBrowser(self)
-#			global markdownNew
-			editor.markdownNew = False
-			editor.MD_PATH_FILE = MD_PATH_FILE
-			editor.MD_DIR_NAME = MD_DIR_NAME
-			editor.MD_BASE_NAME = MD_BASE_NAME
-			self.child = MarkdownEditor(self)
+			self.child = MarkdownEditor(self, MD_PATH_FILE, MD_DIR_NAME, MD_BASE_NAME, False)
 			self.child.Show()
 		else:
 			self.OnNew(event)
 
 	def OnNew(self, event):
 		self.DisableMenuBrowser(self)
-#		global markdownNew
-		editor.markdownNew = True
-		editor.MD_DIR_NAME = MD_DIR_NAME
-		self.child = MarkdownEditor(self)
+		self.child = MarkdownEditor(self, None, MD_DIR_NAME, None, True)
 		self.child.Show()
 
 	# Disable menu items
