@@ -28,7 +28,7 @@ import os
 import webbrowser
 import wx.html as html
 from wx.html import HtmlEasyPrinting
-from environment import *
+from environment import PNG_CELLARET_24, BROWSER_FONT_SIZE, PRINT_FILENAME, WEBBROWSER_OPEN_LINK, EXEC_PATH, OS_LANGUAGE
 
 # HTML Window subclass
 #==============================================================================
@@ -75,14 +75,14 @@ class CellaPrinter(HtmlEasyPrinting):
 	def __init__(self):
 		HtmlEasyPrinting.__init__(self)
 
-	def PreviewText(self, html, doc_name):
+	def PreviewText(self, html, docName):
 		if PRINT_FILENAME:
-			self.SetHeader(doc_name)
+			self.SetHeader(docName)
 		HtmlEasyPrinting.PreviewText(self, html)
 
-	def Print(self, html, doc_name):
+	def Print(self, html, docName):
 		if PRINT_FILENAME:
-			self.SetHeader(doc_name)
+			self.SetHeader(docName)
 		self.PrintText(html)
 
 # Markdown Help
@@ -91,7 +91,7 @@ class MarkdownHelp(wx.Frame):
 
 	def __init__(self, parent):
 		wx.Frame.__init__(self, None, size = (800, 600), title = _('Cellaret Help'))
-		favicon = pngCellaret_24.GetIcon()
+		favicon = PNG_CELLARET_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 

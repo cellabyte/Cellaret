@@ -25,14 +25,11 @@ limitations under the License.
 
 import wx
 import os
-import sys
 import codecs
 from browser import MarkdownHelp
 from lexer import CellaStyledTextCtrl
 from dater import CellaCalendar
-from environment import *
-
-config = wx.Config('cellabyte/cellaret.conf')
+from environment import CONFIG, PNG_CELLARET_24, SELECT_DIRECTORY, WORKING_DIRECTORY, EDITOR_WIDTH, EDITOR_HEIGHT, DATETIME_FORMAT, WRAP_MODE, WHITE_SPACE, INDENTATION_GUIDES, LINE_ENDINGS, EDITOR_TOOLBAR, EDITOR_STATUSBAR
 
 # Markdown Editor (child wx.Frame)
 #==============================================================================
@@ -41,13 +38,13 @@ class MarkdownEditor(wx.Frame):
 	def __init__(self, parent, mdPathFile, mdDirName, mdBaseName, newFile):
 		wx.Frame.__init__(self, None, size = (EDITOR_WIDTH, EDITOR_HEIGHT), title = _('New File - Cellaret File Editor'))
 		self.parent = parent
-		favicon = pngCellaret_24.GetIcon()
+		favicon = PNG_CELLARET_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.OnCloseEditor)
 
 		# EDITOR STATE VARS
-		#==================
+		#===================
 		global NEW_FILE
 		global MD_PATH_FILE
 		global MD_DIR_NAME
@@ -63,10 +60,10 @@ class MarkdownEditor(wx.Frame):
 		self.edOverwriteMode = False # For the future implementation of the overwrite.
 
 		# Editor cellaEditor (Scintilla)
-		#===============================
+		#================================
 		self.cellaEditor = CellaStyledTextCtrl(self) # Text editor subclass
 		self.cellaEditor.SetBackgroundColour(wx.WHITE)
-#		self.cellaEditor.StyleSetSpec(wx.stc.STC_STYLE_DEFAULT, 'size:%d' % EDITOR_FONT_SIZE) # Style for the default text
+		self.cellaEditor.UsePopUp(False)
 
 		self.cellaEditor.SetWrapMode(WRAP_MODE) # Scintilla Wrap mode
 		if WHITE_SPACE:
@@ -96,14 +93,14 @@ class MarkdownEditor(wx.Frame):
 		self.cellaEditor.Bind(wx.stc.EVT_STC_MODIFIED, self.IfTextChanged)
 		self.cellaEditor.Bind(wx.EVT_KEY_DOWN, self.IfKeyDown)
 		self.cellaEditor.Bind(wx.EVT_KEY_UP, self.cellaEditor.OnHighlighting) # Event triggered when you want to set the highlighting style.
-#		self.Bind(wx.EVT_UPDATE_UI, self.IfKeyDown, self.cellaEditor)
 
-		# Menu menuBar
-		#==============
+		# Menu
+		#======
 		self.fileMenu = wx.Menu()
 		self.editMenu = wx.Menu()
 		self.viewMenu = wx.Menu()
 		self.editorSubMenu = wx.Menu()
+		self.contextMenu = wx.Menu()
 
 		self.ID_CUSTOMDATE = wx.NewId()
 		self.ID_DATETIME = wx.NewId()
@@ -118,6 +115,8 @@ class MarkdownEditor(wx.Frame):
 		self.ID_INDENTATIONGUIDES = wx.NewId()
 		self.ID_LINEENDINGS = wx.NewId()
 
+		# Menu Bar
+		#==========
 		self.fileMenu.Append(wx.ID_OPEN, _('App&end\tCtrl-O'), _('Append to File'))
 		self.fileMenu.Append(wx.ID_SAVE, _('&Save\tCtrl-S'), _('Save File'))
 		self.fileMenu.Append(wx.ID_SAVEAS, _('Save &as...'), _('Save as new File'))
@@ -148,9 +147,29 @@ class MarkdownEditor(wx.Frame):
 		self.viewMenu.Append(self.ID_TOOLBAR, _('&Tool Bar'), _('Show Tool Bar'), wx.ITEM_CHECK)
 		self.viewMenu.Append(self.ID_STATUSBAR, _('Status &Bar\tCtrl-B'), _('Show Status Bar'), wx.ITEM_CHECK)
 
+		menuBar = wx.MenuBar()
+		menuBar.Append(self.fileMenu, _('&File'))
+		menuBar.Append(self.editMenu, _('&Edit'))
+		menuBar.Append(self.viewMenu, _('&View'))
+		self.SetMenuBar(menuBar)
+
+		# Context Menu
+		#==============
+		self.contextMenu.Append(wx.ID_UNDO, _('Undo'))
+		self.contextMenu.Append(wx.ID_REDO, _('Redo'))
+		self.contextMenu.AppendSeparator()
+		self.contextMenu.Append(wx.ID_CUT, _('Cut'))
+		self.contextMenu.Append(wx.ID_COPY, _('Copy'))
+		self.contextMenu.Append(wx.ID_PASTE, _('Paste'))
+		self.contextMenu.Append(wx.ID_DELETE, _('Delete'))
+		self.contextMenu.AppendSeparator()
+		self.contextMenu.Append(wx.ID_SELECTALL, _('Select All'))
+
 		self.fileMenu.Enable(wx.ID_SAVE, False) # Disable menu item Save
 		self.editMenu.Enable(wx.ID_UNDO, False) # Disable menu item Undo
 		self.editMenu.Enable(wx.ID_REDO, False) # Disable menu item Redo
+		self.contextMenu.Enable(wx.ID_UNDO, False) # Disable context menu item Undo
+		self.contextMenu.Enable(wx.ID_REDO, False) # Disable context menu item Redo
 
 		self.editorSubMenu.Check(self.ID_WRAPMODE, WRAP_MODE)
 		self.editorSubMenu.Check(self.ID_WHITESPACE, WHITE_SPACE)
@@ -158,12 +177,6 @@ class MarkdownEditor(wx.Frame):
 		self.editorSubMenu.Check(self.ID_LINEENDINGS, LINE_ENDINGS)
 		self.viewMenu.Check(self.ID_TOOLBAR, EDITOR_TOOLBAR)
 		self.viewMenu.Check(self.ID_STATUSBAR, EDITOR_STATUSBAR)
-
-		menuBar = wx.MenuBar()
-		menuBar.Append(self.fileMenu, _('&File'))
-		menuBar.Append(self.editMenu, _('&Edit'))
-		menuBar.Append(self.viewMenu, _('&View'))
-		self.SetMenuBar(menuBar)
 
 		if EDITOR_TOOLBAR:
 			self.iconToolbar = self.CreateIconToolbar()
@@ -197,6 +210,8 @@ class MarkdownEditor(wx.Frame):
 		wx.EVT_MENU(self, self.ID_STATUSBAR, self.OnStatusBar)
 		wx.EVT_TOOL(self, wx.ID_CLOSE, self.OnCloseEditor)
 		wx.EVT_TOOL(self, wx.ID_EXIT, self.OnQuitApplication)
+
+		wx.EVT_CONTEXT_MENU(self.cellaEditor, self.OnShowPopup)
 
 	# Toolbar iconToolbar
 	#=====================
@@ -232,65 +247,72 @@ class MarkdownEditor(wx.Frame):
 		self.toolbar.Realize()
 		return self.toolbar
 
+	# Show Context Menu
+	#===================
+	def OnShowPopup(self, event):
+		pos = event.GetPosition()
+		pos = self.cellaEditor.ScreenToClient(pos)
+		self.cellaEditor.PopupMenu(self.contextMenu, pos)
+
 	# Set Wrap Mode
 	#===============
 	def OnWrapMode(self, event):
 		global WRAP_MODE
-		config.SetPath('Editor')
+		CONFIG.SetPath('Editor')
 		if self.editorSubMenu.IsChecked(self.ID_WRAPMODE):
 			self.cellaEditor.SetWrapMode(True)
-			config.WriteInt('wrap_mode', True)
+			CONFIG.WriteInt('wrap_mode', True)
 			WRAP_MODE = True
 		else:
 			self.cellaEditor.SetWrapMode(False)
-			config.WriteInt('wrap_mode', False)
+			CONFIG.WriteInt('wrap_mode', False)
 			WRAP_MODE = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Show White Space
 	#==================
 	def OnWhiteSpace(self, event):
 		global WHITE_SPACE
-		config.SetPath('Editor')
+		CONFIG.SetPath('Editor')
 		if self.editorSubMenu.IsChecked(self.ID_WHITESPACE):
 			self.cellaEditor.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEALWAYS)
-			config.WriteInt('white_space', True)
+			CONFIG.WriteInt('white_space', True)
 			WHITE_SPACE = True
 		else:
 			self.cellaEditor.SetViewWhiteSpace(False)
-			config.WriteInt('white_space', False)
+			CONFIG.WriteInt('white_space', False)
 			WHITE_SPACE = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Show Indentation Guides
 	#=========================
 	def OnIndentationGuides(self, event):
 		global INDENTATION_GUIDES
-		config.SetPath('Editor')
+		CONFIG.SetPath('Editor')
 		if self.editorSubMenu.IsChecked(self.ID_INDENTATIONGUIDES):
 			self.cellaEditor.SetIndentationGuides(True)
-			config.WriteInt('indentation_guides', True)
+			CONFIG.WriteInt('indentation_guides', True)
 			INDENTATION_GUIDES = True
 		else:
 			self.cellaEditor.SetIndentationGuides(False)
-			config.WriteInt('indentation_guides', False)
+			CONFIG.WriteInt('indentation_guides', False)
 			INDENTATION_GUIDES = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Show Line Endings
 	#===================
 	def OnLineEndings(self, event):
 		global LINE_ENDINGS
-		config.SetPath('Editor')
+		CONFIG.SetPath('Editor')
 		if self.editorSubMenu.IsChecked(self.ID_LINEENDINGS):
 			self.cellaEditor.SetViewEOL(True)
-			config.WriteInt('line_endings', True)
+			CONFIG.WriteInt('line_endings', True)
 			LINE_ENDINGS = True
 		else:
 			self.cellaEditor.SetViewEOL(False)
-			config.WriteInt('line_endings', False)
+			CONFIG.WriteInt('line_endings', False)
 			LINE_ENDINGS = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Toggle Full Screen
 	#====================
@@ -301,31 +323,31 @@ class MarkdownEditor(wx.Frame):
 	#===============
 	def OnToolBar(self, event):
 		global EDITOR_TOOLBAR
-		config.SetPath('Editor')
+		CONFIG.SetPath('Editor')
 		if self.viewMenu.IsChecked(self.ID_TOOLBAR):
 			self.iconToolbar = self.CreateIconToolbar()
-			config.WriteInt('show_toolbar', True)
+			CONFIG.WriteInt('show_toolbar', True)
 			EDITOR_TOOLBAR = True
 		else:
 			self.iconToolbar.Destroy()
-			config.WriteInt('show_toolbar', False)
+			CONFIG.WriteInt('show_toolbar', False)
 			EDITOR_TOOLBAR = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Show Status Bar
 	#=================
 	def OnStatusBar(self, event):
 		global EDITOR_STATUSBAR
-		config.SetPath('Editor')
+		CONFIG.SetPath('Editor')
 		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
 			self.statusbar.Show()
-			config.WriteInt('show_statusbar', True)
+			CONFIG.WriteInt('show_statusbar', True)
 			EDITOR_STATUSBAR = True
 		else:
 			self.statusbar.Hide()
-			config.WriteInt('show_statusbar', False)
+			CONFIG.WriteInt('show_statusbar', False)
 			EDITOR_STATUSBAR = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Show Markdown Help
 	#====================
@@ -357,6 +379,7 @@ class MarkdownEditor(wx.Frame):
 		self.markdownTextIsModified = True
 		self.fileMenu.Enable(wx.ID_SAVE, True) # Enable menu item Save
 		self.editMenu.Enable(wx.ID_UNDO, True) # Enable menu item Undo
+		self.contextMenu.Enable(wx.ID_UNDO, True) # Enable context menu item Undo
 		if self.iconToolbar:
 			self.toolbar.EnableTool(wx.ID_SAVE, True) # Enable toolbar item Save
 			self.toolbar.EnableTool(wx.ID_UNDO, True) # Enable toolbar item Undo
@@ -476,10 +499,12 @@ class MarkdownEditor(wx.Frame):
 			self.cellaEditor.Undo()
 			self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 			self.editMenu.Enable(wx.ID_REDO, True)
+			self.contextMenu.Enable(wx.ID_REDO, True) # Enable context menu item Redo
 			if self.iconToolbar:
 				self.toolbar.EnableTool(wx.ID_REDO, True)
 		else:
 			self.editMenu.Enable(wx.ID_UNDO, False)
+			self.contextMenu.Enable(wx.ID_UNDO, False) # Disable context menu item Undo
 			if self.iconToolbar:
 				self.toolbar.EnableTool(wx.ID_UNDO, False)
 
@@ -488,10 +513,12 @@ class MarkdownEditor(wx.Frame):
 			self.cellaEditor.Redo()
 			self.cellaEditor.OnHighlighting(self) # Update the Highlighting style.
 			self.editMenu.Enable(wx.ID_UNDO, True)
+			self.contextMenu.Enable(wx.ID_UNDO, True) # Enable context menu item Undo
 			if self.iconToolbar:
 				self.toolbar.EnableTool(wx.ID_UNDO, True)
 		else:
 			self.editMenu.Enable(wx.ID_REDO, False)
+			self.contextMenu.Enable(wx.ID_REDO, False) # Disable context menu item Redo
 			if self.iconToolbar:
 				self.toolbar.EnableTool(wx.ID_REDO, False)
 

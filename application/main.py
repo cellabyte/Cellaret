@@ -30,23 +30,14 @@ that browse and edit Markdown text.
 
 import wx
 import os
-import sys
 import codecs
 import markdown
 import gettext
 from browser import CellaHtmlWindow, CellaPrinter, MarkdownHelp
 from editor import MarkdownEditor
 from preferences import CellaretPreferences
-from environment import *
+from environment import CONFIG, PNG_CELLARET_24, PNG_CELLARET_32, SELECT_DIRECTORY, WORKING_DIRECTORY, BROWSER_WIDTH, BROWSER_HEIGHT, BROWSER_STATUSBAR, EXEC_PATH
 
-EXEC_PATH, refuse = os.path.split(os.path.dirname(os.path.abspath(__file__)))
-
-try:
-	EXEC_PATH = EXEC_PATH.decode('utf-8') # omit in Python 3.x
-except UnicodeEncodeError:
-	pass
-
-config = wx.Config('cellabyte/cellaret.conf')
 gettext.install('cellaret', os.path.join(EXEC_PATH, 'translations'), unicode = True)
 
 # Markdown Browser (parent wx.Frame)
@@ -54,8 +45,8 @@ gettext.install('cellaret', os.path.join(EXEC_PATH, 'translations'), unicode = T
 class MarkdownBrowser(wx.Frame):
 
 	def __init__(self, mdFileArgv, mdPathFile):
-		wx.Frame.__init__(self, None, size = (BROWSER_WIDTH, BROWSER_HEIGHT), title = _('Cellaret'))
-		favicon = pngCellaret_24.GetIcon()
+		wx.Frame.__init__(self, None, size = (BROWSER_WIDTH, BROWSER_HEIGHT), title = 'Cellaret')
+		favicon = PNG_CELLARET_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 		self.Bind(wx.EVT_CLOSE, self.OnExit)
@@ -68,6 +59,7 @@ class MarkdownBrowser(wx.Frame):
 		global MD_PRINT_DATA
 		MD_FILE_ARGV = mdFileArgv
 		MD_PATH_FILE = mdPathFile
+		MD_PRINT_DATA = None
 		MD_DIR_NAME = None
 		self.child = None
 
@@ -75,17 +67,6 @@ class MarkdownBrowser(wx.Frame):
 		#======================
 		self.cellaBrowser = CellaHtmlWindow(self) # HTML Window subclass
 		self.Show(True)
-
-		if MD_FILE_ARGV:
-			MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
-			MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
-			self.filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
-			self.mdText = self.filePath.read() # read Markdown file
-			self.filePath.close() # close the file
-			self.mdHtml = markdown.markdown(self.mdText) # convert Markdown to html
-			self.cellaBrowser.SetPage(self.mdHtml) # deduce the content as html
-			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
-			MD_PRINT_DATA = self.mdHtml
 
 		# Menu menuBar
 		#==============
@@ -127,6 +108,8 @@ class MarkdownBrowser(wx.Frame):
 		helpMenu.Append(wx.ID_ABOUT, _('&About'), _('Information about this program'))
 
 		self.viewMenu.Check(self.ID_STATUSBAR, BROWSER_STATUSBAR)
+		self.fileMenu.Enable(wx.ID_PREVIEW, False)
+		self.fileMenu.Enable(wx.ID_PRINT, False)
 
 		menuBar = wx.MenuBar()
 		menuBar.Append(self.fileMenu, _('&File'))
@@ -172,6 +155,21 @@ class MarkdownBrowser(wx.Frame):
 		if not BROWSER_STATUSBAR:
 			self.statusbar.Hide()
 
+		# Open file from CLI
+		#====================
+		if MD_FILE_ARGV:
+			MD_DIR_NAME = os.path.dirname(MD_PATH_FILE)
+			MD_BASE_NAME = os.path.basename(MD_PATH_FILE)
+			self.filePath = codecs.open(MD_PATH_FILE, mode='r', encoding='utf-8') # open the file and encoding
+			self.mdText = self.filePath.read() # read Markdown file
+			self.filePath.close() # close the file
+			self.mdHtml = markdown.markdown(self.mdText) # convert Markdown to html
+			self.cellaBrowser.SetPage(self.mdHtml) # deduce the content as html
+			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
+			MD_PRINT_DATA = self.mdHtml
+			self.fileMenu.Enable(wx.ID_PREVIEW, True)
+			self.fileMenu.Enable(wx.ID_PRINT, True)
+
 	# Toggle Full Screen
 	#====================
 	def OnFullScreen(self, event):
@@ -181,16 +179,16 @@ class MarkdownBrowser(wx.Frame):
 	#=================
 	def OnStatusBar(self, event):
 		global BROWSER_STATUSBAR
-		config.SetPath('Browser')
+		CONFIG.SetPath('Browser')
 		if self.viewMenu.IsChecked(self.ID_STATUSBAR):
 			self.statusbar.Show()
-			config.WriteInt('show_statusbar', True)
+			CONFIG.WriteInt('show_statusbar', True)
 			BROWSER_STATUSBAR = True
 		else:
 			self.statusbar.Hide()
-			config.WriteInt('show_statusbar', False)
+			CONFIG.WriteInt('show_statusbar', False)
 			BROWSER_STATUSBAR = False
-		config.SetPath('')
+		CONFIG.SetPath('')
 
 	# Show Context Menu
 	#===================
@@ -199,10 +197,13 @@ class MarkdownBrowser(wx.Frame):
 		pos = self.cellaBrowser.ScreenToClient(pos)
 		self.cellaBrowser.PopupMenu(self.contextMenu, pos)
 
+	# Open file
+	#===========
 	def OnOpen(self, event):
 		global MD_PATH_FILE
 		global MD_DIR_NAME
 		global MD_BASE_NAME
+		global MD_PRINT_DATA
 		if MD_PATH_FILE:
 			dir = MD_DIR_NAME
 		elif SELECT_DIRECTORY:
@@ -225,8 +226,9 @@ class MarkdownBrowser(wx.Frame):
 				self.cellaBrowser.SetPage(mdHtml) # deduce the content as html
 				self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
-				global MD_PRINT_DATA
 				MD_PRINT_DATA = mdHtml
+				self.fileMenu.Enable(wx.ID_PREVIEW, True)
+				self.fileMenu.Enable(wx.ID_PRINT, True)
 
 			except IOError, error:
 				dlg = wx.MessageDialog(self, _('Error opening file\n') + str(error))
@@ -236,6 +238,8 @@ class MarkdownBrowser(wx.Frame):
 				dlg.ShowModal()
 		fileOpenDlg.Destroy()
 
+	# Refresh
+	#=========
 	def OnRefresh(self, event):
 		global MD_PRINT_DATA
 		if MD_PATH_FILE:
@@ -248,6 +252,8 @@ class MarkdownBrowser(wx.Frame):
 			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
 			MD_PRINT_DATA = mdHtml
+			self.fileMenu.Enable(wx.ID_PREVIEW, True)
+			self.fileMenu.Enable(wx.ID_PRINT, True)
 
 	def OnSaveRefresh(self, mdPathFile, mdDirName, mdBaseName):
 		global MD_PATH_FILE
@@ -267,10 +273,14 @@ class MarkdownBrowser(wx.Frame):
 			self.SetTitle(MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
 			MD_PRINT_DATA = mdHtml
+			self.fileMenu.Enable(wx.ID_PREVIEW, True)
+			self.fileMenu.Enable(wx.ID_PRINT, True)
 
 	def SetTitlePlus(self, event):
 		self.SetTitle('+ ' + MD_BASE_NAME + ' (' + MD_DIR_NAME + ') - Cellaret')
 
+	# Save as HTML
+	#==============
 	def OnSaveAsHtml(self, event):
 		if MD_PATH_FILE:
 			dir = os.path.dirname(MD_PATH_FILE)
@@ -300,6 +310,8 @@ class MarkdownBrowser(wx.Frame):
 				dlg.ShowModal()
 		save_dlg.Destroy()
 
+	# Select & Copy
+	#===============
 	def OnSelectAll(self, event):
 		self.cellaBrowser.SelectsAllText()
 
@@ -311,12 +323,10 @@ class MarkdownBrowser(wx.Frame):
 	def OnPreview(self, event):
 		printer = CellaPrinter() # Printer subclass
 		printer.PreviewText(MD_PRINT_DATA, MD_PATH_FILE)
-		return True
 
 	def OnPrint(self, event):
 		printer = CellaPrinter() # Printer subclass
 		printer.Print(MD_PRINT_DATA, MD_PATH_FILE)
-		return True
 
 	# Open Editor frame
 	#===================
@@ -364,7 +374,7 @@ class MarkdownBrowser(wx.Frame):
 	#==============
 	def OnAbout(self, event):
 		info = wx.AboutDialogInfo()
-		getCellaret_32Icon = pngCellaret_32.GetIcon()
+		getCellaret_32Icon = PNG_CELLARET_32.GetIcon()
 
 		info.SetIcon(getCellaret_32Icon)
 		info.SetName('Cellaret')

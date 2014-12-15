@@ -24,10 +24,7 @@ limitations under the License.
 '''
 
 import wx
-import environment
-from environment import pngCellaret_24
-
-config = wx.Config('cellabyte/cellaret.conf')
+from environment import CONFIG, PNG_CELLARET_24, SELECT_DIRECTORY, WORKING_DIRECTORY, BROWSER_WIDTH, BROWSER_HEIGHT, BROWSER_FONT_SIZE, PRINT_FILENAME, WEBBROWSER_OPEN_LINK, EDITOR_WIDTH, EDITOR_HEIGHT, STYLE_HIGHLIGHTING, DATETIME_FORMAT
 
 # Cellaret Preferences (child wx.Frame)
 #==============================================================================
@@ -36,7 +33,7 @@ class CellaretPreferences(wx.Frame):
 	def __init__(self, parent):
 		wx.Frame.__init__(self, None, size = (440, 340), title = _('Cellaret Preferences'), style = wx.CAPTION | wx.MINIMIZE_BOX | wx.CLOSE_BOX)
 		self.parent = parent
-		favicon = pngCellaret_24.GetIcon()
+		favicon = PNG_CELLARET_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 
@@ -52,69 +49,54 @@ class CellaretPreferences(wx.Frame):
 
 		self.main.SetFocus()
 
-		# Main Panel
-		#===========
+		# Main Panel (Path 'General')
+		#=============================
 		wx.StaticText(self.main, wx.ID_ANY, _('Select Working directory'), (20, 20))
 		self.cb1SelectDirectory = wx.CheckBox(self.main, wx.ID_ANY, '', (20, 40))
-
-		config.SetPath('General')
-		self.cb1SelectDirectory.SetValue(config.ReadInt('select_directory'))
-		environment.WORKING_DIRECTORY = config.Read('working_directory')
-		config.SetPath('')
-
-		self.workingDirectory = wx.TextCtrl(self.main, wx.ID_ANY, str(environment.WORKING_DIRECTORY), (40, 40), (385, -1))
+		self.cb1SelectDirectory.SetValue(SELECT_DIRECTORY)
+		self.workingDirectory = wx.TextCtrl(self.main, wx.ID_ANY, str(WORKING_DIRECTORY), (40, 40), (385, -1))
 
 		closeButton = wx.Button(self.main, wx.ID_CLOSE, pos=(225, 240))
 		self.okMainButton = wx.Button(self.main, wx.ID_OK, pos=(325, 240))
 		self.okMainButton.SetDefault()
 
-		# Browser Panel
-		#==============
+		# Browser Panel (Path 'Browser')
+		#================================
 		self.cb1Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Print Filename'), (200, 15))
 		self.cb2Browser = wx.CheckBox(self.browser, wx.ID_ANY, _('Open link in a web browser'), (200, 45))
-
-		config.SetPath('Browser')
-		environment.BROWSER_FONT_SIZE = config.ReadInt('font_size')
-		self.cb1Browser.SetValue(config.ReadInt('print_filename'))
-		self.cb2Browser.SetValue(config.ReadInt('open_link'))
-		config.SetPath('')
+		self.cb1Browser.SetValue(PRINT_FILENAME)
+		self.cb2Browser.SetValue(WEBBROWSER_OPEN_LINK)
 
 		wx.StaticText(self.browser, wx.ID_ANY, _('Width:'), (20, 20))
 		wx.StaticText(self.browser, wx.ID_ANY, _('Height:'), (20, 50))
 		wx.StaticText(self.browser, wx.ID_ANY, _('Font size:'), (20, 80))
-		self.sc1Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(environment.BROWSER_WIDTH), (100, 15), (60, -1), min=200, max=2000)
-		self.sc2Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(environment.BROWSER_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
-		self.sc3Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(environment.BROWSER_FONT_SIZE), (100, 75), (60, -1), min=8, max=24)
+		self.sc1Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(BROWSER_WIDTH), (100, 15), (60, -1), min=200, max=2000)
+		self.sc2Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(BROWSER_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
+		self.sc3Browser = wx.SpinCtrl(self.browser, wx.ID_ANY, str(BROWSER_FONT_SIZE), (100, 75), (60, -1), min=8, max=24)
 
 		closeButton = wx.Button(self.browser, wx.ID_CLOSE, pos=(225, 240))
 		self.okBrowserButton = wx.Button(self.browser, wx.ID_OK, pos=(325, 240))
 		self.okBrowserButton.SetDefault()
 
-		# Editor Panel
-		#=============
+		# Editor Panel (Path 'Editor')
+		#==============================
 		self.cb1Editor = wx.CheckBox(self.editor, wx.ID_ANY, _('Style highlighting'), (200, 15))
-#		self.cb2Editor = wx.CheckBox(self.editor, wx.ID_ANY, _('Check brace'), (200, 45))
-
-		config.SetPath('Editor')
-		self.cb1Editor.SetValue(config.ReadInt('style_highlighting'))
-		environment.DATETIME_FORMAT = config.Read('datetime_format')
-#		self.cb2Editor.SetValue(config.ReadInt('check_brace'))
-		config.SetPath('')
+		self.cb1Editor.SetValue(STYLE_HIGHLIGHTING)
 
 		wx.StaticText(self.editor, wx.ID_ANY, _('Width:'), (20, 20))
 		wx.StaticText(self.editor, wx.ID_ANY, _('Height:'), (20, 50))
-		self.sc1Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(environment.EDITOR_WIDTH), (100, 15), (60, -1), min=200, max=2000)
-		self.sc2Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(environment.EDITOR_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
+		self.sc1Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(EDITOR_WIDTH), (100, 15), (60, -1), min=200, max=2000)
+		self.sc2Editor = wx.SpinCtrl(self.editor, wx.ID_ANY, str(EDITOR_HEIGHT), (100, 45), (60, -1), min=200, max=2000)
 
 		wx.StaticText(self.editor, wx.ID_ANY, _('Format Date and Time:'), (20, 80))
-		self.datetimeFormat = wx.TextCtrl(self.editor, wx.ID_ANY, str(environment.DATETIME_FORMAT), (200, 75), (225, -1))
+		self.datetimeFormat = wx.TextCtrl(self.editor, wx.ID_ANY, str(DATETIME_FORMAT), (200, 75), (225, -1))
 
 		closeButton = wx.Button(self.editor, wx.ID_CLOSE, pos=(225, 240))
 		self.okEditorButton = wx.Button(self.editor, wx.ID_OK, pos=(325, 240))
 		self.okEditorButton.SetDefault()
 
 		# Buttons
-		#========
+		#=========
 		self.okMainButton.Bind(wx.EVT_BUTTON, self.OnSaveMain, id=wx.ID_OK)
 		self.okBrowserButton.Bind(wx.EVT_BUTTON, self.OnSaveBrowser, id=wx.ID_OK)
 		self.okEditorButton.Bind(wx.EVT_BUTTON, self.OnSaveEditor, id=wx.ID_OK)
@@ -123,30 +105,29 @@ class CellaretPreferences(wx.Frame):
 		self.statusbar = self.CreateStatusBar()
 
 	def OnSaveMain(self, event):
-		config.SetPath('General')
-		config.WriteInt('select_directory', self.cb1SelectDirectory.GetValue())
-		config.Write('working_directory', self.workingDirectory.GetValue())
-		config.SetPath('')
+		CONFIG.SetPath('General')
+		CONFIG.WriteInt('select_directory', self.cb1SelectDirectory.GetValue())
+		CONFIG.Write('working_directory', self.workingDirectory.GetValue())
+		CONFIG.SetPath('')
 		self.statusbar.SetStatusText(_('Main Configuration saved. Program restart required.'))
 
 	def OnSaveBrowser(self, event):
-		config.SetPath('Browser')
-		config.WriteInt('width', self.sc1Browser.GetValue())
-		config.WriteInt('height', self.sc2Browser.GetValue())
-		config.WriteInt('font_size', self.sc3Browser.GetValue())
-		config.WriteInt('print_filename', self.cb1Browser.GetValue())
-		config.WriteInt('open_link', self.cb2Browser.GetValue())
-		config.SetPath('')
+		CONFIG.SetPath('Browser')
+		CONFIG.WriteInt('width', self.sc1Browser.GetValue())
+		CONFIG.WriteInt('height', self.sc2Browser.GetValue())
+		CONFIG.WriteInt('font_size', self.sc3Browser.GetValue())
+		CONFIG.WriteInt('print_filename', self.cb1Browser.GetValue())
+		CONFIG.WriteInt('open_link', self.cb2Browser.GetValue())
+		CONFIG.SetPath('')
 		self.statusbar.SetStatusText(_('Browser Configuration saved. Program restart required.'))
 
 	def OnSaveEditor(self, event):
-		config.SetPath('Editor')
-		config.WriteInt('width', self.sc1Editor.GetValue())
-		config.WriteInt('height', self.sc2Editor.GetValue())
-		config.WriteInt('style_highlighting', self.cb1Editor.GetValue())
-		config.Write('datetime_format', self.datetimeFormat.GetValue())
-#		config.WriteInt('check_brace', self.cb2Editor.GetValue())
-		config.SetPath('')
+		CONFIG.SetPath('Editor')
+		CONFIG.WriteInt('width', self.sc1Editor.GetValue())
+		CONFIG.WriteInt('height', self.sc2Editor.GetValue())
+		CONFIG.WriteInt('style_highlighting', self.cb1Editor.GetValue())
+		CONFIG.Write('datetime_format', self.datetimeFormat.GetValue())
+		CONFIG.SetPath('')
 		self.statusbar.SetStatusText(_('Editor Configuration saved. Program restart required.'))
 
 	def OnCancel(self, event):

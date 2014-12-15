@@ -26,7 +26,33 @@ limitations under the License.
 import wx
 import wx.stc
 import codecs
-from environment import *
+from environment import STYLE_HIGHLIGHTING
+
+# Defining styles Markdown
+#==========================
+MARKDOWN_DEFAULT = 0
+MARKDOWN_LINE_BEGIN = 1
+MARKDOWN_STRONG1 = 2
+MARKDOWN_STRONG2 = 3
+MARKDOWN_EM1 = 4
+MARKDOWN_EM2 = 5
+MARKDOWN_HEADER1 = 6
+MARKDOWN_HEADER2 = 7
+MARKDOWN_HEADER3 = 8
+MARKDOWN_HEADER4 = 9
+MARKDOWN_HEADER5 = 10
+MARKDOWN_HEADER6 = 11
+MARKDOWN_PRECHAR = 12
+MARKDOWN_ULIST_ITEM = 13
+MARKDOWN_OLIST_ITEM = 14
+MARKDOWN_BLOCKQUOTE = 15
+MARKDOWN_STRIKEOUT = 16
+MARKDOWN_HRULE = 17
+MARKDOWN_LINK = 18
+MARKDOWN_CODE = 19
+MARKDOWN_CODE2 = 20
+MARKDOWN_CODEBK = 21
+MARKDOWN_IMAGE = 22
 
 # Text editor subclass Scintilla
 #==============================================================================
@@ -62,34 +88,8 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 		self.StyleSetSpec(wx.stc.STC_STYLE_INDENTGUIDE, 'fore:#a0a0a0,face:%(helv)s,size:%(size)d' % faces)
 		#self.StyleSetSpec(wx.stc.STC_STYLE_LASTPREDEFINED, 'face:%(helv)s,size:%(size)d' % faces)
 
-		self.StyleSetSpec(wx.stc.STC_STYLE_BRACELIGHT, 'fore:#ffffff,back:#808080') # Style for matching brackets
-		self.StyleSetSpec(wx.stc.STC_STYLE_BRACEBAD, 'fore:#000000,back:#ff0000') # Style to unpaired brackets (erroneous) - red background
-
-		# Defining styles Markdown
-		#==========================
-		self.MARKDOWN_DEFAULT = 0
-		self.MARKDOWN_LINE_BEGIN = 1
-		self.MARKDOWN_STRONG1 = 2
-		self.MARKDOWN_STRONG2 = 3
-		self.MARKDOWN_EM1 = 4
-		self.MARKDOWN_EM2 = 5
-		self.MARKDOWN_HEADER1 = 6
-		self.MARKDOWN_HEADER2 = 7
-		self.MARKDOWN_HEADER3 = 8
-		self.MARKDOWN_HEADER4 = 9
-		self.MARKDOWN_HEADER5 = 10
-		self.MARKDOWN_HEADER6 = 11
-		self.MARKDOWN_PRECHAR = 12
-		self.MARKDOWN_ULIST_ITEM = 13
-		self.MARKDOWN_OLIST_ITEM = 14
-		self.MARKDOWN_BLOCKQUOTE = 15
-		self.MARKDOWN_STRIKEOUT = 16
-		self.MARKDOWN_HRULE = 17
-		self.MARKDOWN_LINK = 18
-		self.MARKDOWN_CODE = 19
-		self.MARKDOWN_CODE2 = 20
-		self.MARKDOWN_CODEBK = 21
-		self.MARKDOWN_IMAGE = 22
+		self.StyleSetSpec(wx.stc.STC_STYLE_BRACELIGHT, 'fore:#ffffff,back:#808080,face:%(helv)s,size:%(size)d' % faces) # Style for matching brackets
+		self.StyleSetSpec(wx.stc.STC_STYLE_BRACEBAD, 'fore:#000000,back:#ff0000,face:%(helv)s,size:%(size)d' % faces) # Style to unpaired brackets (erroneous) - red background
 
 		'''		colors
 		#86abd9	#edeceb	#bebebe	#ff0000	#ffff00	#6c8ea2	#0000ff	#ff00ff
@@ -97,29 +97,29 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 		#1e90ff
 		'''
 
-		self.StyleSetSpec(self.MARKDOWN_DEFAULT, 'fore:#404040,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_LINE_BEGIN, 'fore:#0000ff,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_STRONG1, 'fore:#404040,face:%(helv)s,size:%(size)d,bold' % faces)
-		self.StyleSetSpec(self.MARKDOWN_STRONG2, 'fore:#000000,face:%(helv)s,size:%(size)d,bold' % faces)
-		self.StyleSetSpec(self.MARKDOWN_EM1, 'fore:#000000,face:%(helv)s,size:%(size)d,italic' % faces)
-		self.StyleSetSpec(self.MARKDOWN_EM2, 'fore:#000000,face:%(helv)s,size:%(size)d,italic' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HEADER1, 'fore:#007f00,face:%(helv)s,size:%(size)d,bold' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HEADER2, 'fore:#2e8b57,face:%(helv)s,size:%(size)d,bold' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HEADER3, 'fore:#008a8c,face:%(helv)s,size:%(size)d,bold' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HEADER4, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HEADER5, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HEADER6, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_PRECHAR, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_ULIST_ITEM, 'fore:#6a5acd,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_OLIST_ITEM, 'fore:#6a5acd,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_BLOCKQUOTE, 'fore:#a020f0,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_STRIKEOUT, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_HRULE, 'fore:#7f0000,face:%(mono)s,size:%(size)d,bold' % faces)
-		self.StyleSetSpec(self.MARKDOWN_LINK, 'fore:#0000ff,face:%(helv)s,size:%(size)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_CODE, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_CODE2, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_CODEBK, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
-		self.StyleSetSpec(self.MARKDOWN_IMAGE, 'fore:#7f0000,face:%(helv)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_DEFAULT, 'fore:#404040,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_LINE_BEGIN, 'fore:#0000ff,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_STRONG1, 'fore:#404040,face:%(helv)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_STRONG2, 'fore:#000000,face:%(helv)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_EM1, 'fore:#000000,face:%(helv)s,size:%(size)d,italic' % faces)
+		self.StyleSetSpec(MARKDOWN_EM2, 'fore:#000000,face:%(helv)s,size:%(size)d,italic' % faces)
+		self.StyleSetSpec(MARKDOWN_HEADER1, 'fore:#007f00,face:%(helv)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_HEADER2, 'fore:#2e8b57,face:%(helv)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_HEADER3, 'fore:#008a8c,face:%(helv)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_HEADER4, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_HEADER5, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_HEADER6, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_PRECHAR, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_ULIST_ITEM, 'fore:#6a5acd,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_OLIST_ITEM, 'fore:#6a5acd,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_BLOCKQUOTE, 'fore:#a020f0,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_STRIKEOUT, 'fore:#007f00,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_HRULE, 'fore:#7f0000,face:%(mono)s,size:%(size)d,bold' % faces)
+		self.StyleSetSpec(MARKDOWN_LINK, 'fore:#0000ff,face:%(helv)s,size:%(size)d' % faces)
+		self.StyleSetSpec(MARKDOWN_CODE, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
+		self.StyleSetSpec(MARKDOWN_CODE2, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
+		self.StyleSetSpec(MARKDOWN_CODEBK, 'fore:#ff00ff,face:%(mono)s,size:%(size2)d' % faces)
+		self.StyleSetSpec(MARKDOWN_IMAGE, 'fore:#7f0000,face:%(helv)s,size:%(size)d,bold' % faces)
 
 	def CalcByteLen(self, text):
 		return len(self.encoder(text)[0]) # Calculate the length of the string in bytes (not characters).
@@ -135,42 +135,41 @@ class CellaStyledTextCtrl(wx.stc.StyledTextCtrl):
 			''' Apply to all text, default style. '''
 			text = self.GetText()
 			self.StartStyling(0, 0xff)
-			self.SetStyling(self.CalcByteLen(text), self.MARKDOWN_DEFAULT)
+			self.SetStyling(self.CalcByteLen(text), MARKDOWN_DEFAULT)
 
 			''' Highlight the text, using indicators. '''
-#			self.HighlightPhrase(u'*', self.MARKDOWN_EM1)
-#			self.HighlightPhrase(u'_', self.MARKDOWN_EM2)
+			self.HighlightLine(u'* ', MARKDOWN_ULIST_ITEM)
+			self.HighlightLine(u'+ ', MARKDOWN_ULIST_ITEM)
+			self.HighlightLine(u'- ', MARKDOWN_ULIST_ITEM)
+			self.HighlightLine(u'> ', MARKDOWN_BLOCKQUOTE)
 
-			self.HighlightPhrase(u'**', self.MARKDOWN_STRONG1)
-#			self.HighlightPhrase(u'__', self.MARKDOWN_STRONG2)
+			self.HighlightEolTab(MARKDOWN_CODE2)
 
-			self.HighlightLine(u'* ', self.MARKDOWN_ULIST_ITEM)
-			self.HighlightLine(u'+ ', self.MARKDOWN_ULIST_ITEM)
-			self.HighlightLine(u'- ', self.MARKDOWN_ULIST_ITEM)
-			self.HighlightLine(u'> ', self.MARKDOWN_BLOCKQUOTE)
+			self.HighlightLine('\t' + u'* ', MARKDOWN_OLIST_ITEM)
+			self.HighlightLine('\t' + u'+ ', MARKDOWN_OLIST_ITEM)
+			self.HighlightLine('\t' + u'- ', MARKDOWN_OLIST_ITEM)
 
-			self.HighlightEolTab(self.MARKDOWN_CODE2)
+			self.HighlightClause(u'[', u']', MARKDOWN_LINK)
+			self.HighlightClause(u'(http', u')', MARKDOWN_LINK)
+			self.HighlightClause(u'<http', u'>', MARKDOWN_LINK)
 
-			self.HighlightLine('\t' + u'* ', self.MARKDOWN_OLIST_ITEM)
-			self.HighlightLine('\t' + u'+ ', self.MARKDOWN_OLIST_ITEM)
-			self.HighlightLine('\t' + u'- ', self.MARKDOWN_OLIST_ITEM)
+			self.HighlightLine(u'#', MARKDOWN_HEADER1)
+			self.HighlightLine(u'##', MARKDOWN_HEADER2)
+			self.HighlightLine(u'###', MARKDOWN_HEADER3)
+			self.HighlightLine(u'####', MARKDOWN_HEADER4)
+#			self.HighlightLine(u'#####', MARKDOWN_HEADER5)
+#			self.HighlightLine(u'######', MARKDOWN_HEADER6)
 
-			self.HighlightClause(u'[', u']', self.MARKDOWN_LINK)
-			self.HighlightClause(u'(http', u')', self.MARKDOWN_LINK)
-			self.HighlightClause(u'<http', u'>', self.MARKDOWN_LINK)
+#			self.HighlightPhrase(u'*', MARKDOWN_EM1)
+#			self.HighlightPhrase(u'_', MARKDOWN_EM2)
+			self.HighlightPhrase(u'**', MARKDOWN_STRONG1)
+#			self.HighlightPhrase(u'__', MARKDOWN_STRONG2)
 
-			self.HighlightLine(u'#', self.MARKDOWN_HEADER1)
-			self.HighlightLine(u'##', self.MARKDOWN_HEADER2)
-			self.HighlightLine(u'###', self.MARKDOWN_HEADER3)
-			self.HighlightLine(u'####', self.MARKDOWN_HEADER4)
-#			self.HighlightLine(u'#####', self.MARKDOWN_HEADER5)
-#			self.HighlightLine(u'######', self.MARKDOWN_HEADER6)
+			self.HighlightClause(u'![', u')', MARKDOWN_IMAGE)
 
-			self.HighlightClause(u'![', u')', self.MARKDOWN_IMAGE)
+			self.HighlightPhrase(u'`', MARKDOWN_CODE)
 
-			self.HighlightPhrase(u'`', self.MARKDOWN_CODE)
-
-			self.HighlightWord(u'***', self.MARKDOWN_HRULE)
+			self.HighlightWord(u'***', MARKDOWN_HRULE)
 
 	# Clause highlighting
 	#=====================

@@ -27,7 +27,6 @@ limitations under the License.
 import wx
 import os
 import sys
-import codecs
 from application.main import MarkdownBrowser
 
 if len(sys.argv) > 1:
@@ -40,6 +39,7 @@ if len(sys.argv) > 1:
 		pass
 
 	if not os.path.isfile(MD_PATH_FILE):
+		print sys.argv[1] + ': No such file or directory'
 		MD_FILE_ARGV = False
 		MD_PATH_FILE = None
 else:

@@ -25,16 +25,14 @@ limitations under the License.
 
 import wx
 import wx.calendar
-import environment
-from environment import pngCellaret_24
-#from environment import *
+from environment import PNG_CELLARET_24
 
 class CellaCalendar(wx.Dialog):
 
 	def __init__(self, parent):
 		wx.Dialog.__init__(self, parent, size = (200, 160), title = _('Calendar'))
 		self.parent = parent
-		favicon = pngCellaret_24.GetIcon()
+		favicon = PNG_CELLARET_24.GetIcon()
 		self.SetIcon(favicon)
 		self.Centre()
 
